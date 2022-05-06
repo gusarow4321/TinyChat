@@ -1,0 +1,53 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "auth/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  Hasher hasher = 3;
+  TokenMaker token_maker = 4;
+}
+
+message Server {
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  GRPC grpc = 1;
+}
+
+message Data { // TODO
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration read_timeout = 3;
+    google.protobuf.Duration write_timeout = 4;
+  }
+  Database database = 1;
+  Redis redis = 2;
+}
+
+message Hasher {
+  string salt = 1;
+  uint32 iterations = 2;
+  uint32 memory = 3;
+  uint32 threads = 4;
+  uint32 key_len = 5;
+}
+
+message TokenMaker {
+  string access_key = 1;
+  string refresh_key = 2;
+  string assert = 3;
+  google.protobuf.Duration access_ttl = 4;
+  google.protobuf.Duration refresh_ttl = 5;
+}

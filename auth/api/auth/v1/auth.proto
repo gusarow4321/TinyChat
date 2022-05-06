@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package api.auth.v1;
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "auth/api/auth/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.auth.v1";
+
+service Auth {
+	rpc SignUp (SignUpRequest) returns (SignUpReply){
+		option (google.api.http) = {
+			post: "/auth/sign-up"
+			body: "*"
+		};
+	};
+	rpc SignIn (SignInRequest) returns (SignInReply){
+		option (google.api.http) = {
+			post: "/auth/sign-in"
+			body: "*"
+		};
+	};
+	rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenReply){
+		option (google.api.http) = {
+			post: "/auth/refresh"
+			body: "*"
+		};
+	};
+	rpc Identity (IdentityRequest) returns (IdentityReply){
+		option (google.api.http) = {
+			post: "/auth/identity"
+			body: "*"
+		};
+	};
+}
+
+message Tokens {
+	string access_token = 1;
+	string refresh_token = 2;
+}
+
+message SignUpRequest {
+	string name = 1 [(validate.rules).string = {min_len: 4, max_len: 16}];
+	string email = 2 [(validate.rules).string.min_len = 6];
+	string password = 3 [(validate.rules).string.min_len = 8];
+}
+message SignUpReply {
+	uint64 id = 1;
+	string name = 2;
+	string email = 3;
+	Tokens tokens = 4;
+}
+
+message SignInRequest {
+	string email = 1 [(validate.rules).string.min_len = 6];
+	string password = 2 [(validate.rules).string.min_len = 8];
+}
+message SignInReply {
+	uint64 id = 1;
+	string name = 2;
+	string email = 3;
+	Tokens tokens = 4;
+}
+
+message RefreshTokenRequest {
+	string refresh_token = 1;
+}
+message RefreshTokenReply {
+	Tokens tokens = 1;
+}
+
+message IdentityRequest {
+	string access_token = 1;
+}
+message IdentityReply {
+	uint64 id = 1;
+}

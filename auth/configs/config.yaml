@@ -1,0 +1,21 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(127.0.0.1:3306)/test
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+hasher:
+  salt: SNobRSPG5p4TZGMrDqDq
+tokenMaker:
+  accessKey: a754de40e78ae2ee86c1f06ab9fd458fba125b69460c2c782e9e88f8ead7ebf9
+  refreshKey: 5f897c8f3bef28ed3db7b914992c7e47ea03293880525bf0882ef7783008b843
+  assert: assert

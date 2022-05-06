@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package helloworld.v1;
+
+option go_package = "auth/api/auth/v1;v1";
+option java_multiple_files = true;
+option java_package = "auth.v1";
+option objc_class_prefix = "APIHelloworldV1";
+
+enum ErrorReason {
+  USER_NOT_FOUND = 0;
+  WRONG_PASSWORD = 1;
+  INVALID_TOKEN  = 2;
+}
