@@ -1,8 +1,8 @@
 package hash
 
 import (
-	"auth/internal/conf"
 	"encoding/hex"
+	"github.com/gusarow4321/TinyChat/auth/internal/conf"
 	"golang.org/x/crypto/argon2"
 )
 

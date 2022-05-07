@@ -6,16 +6,16 @@
 package main
 
 import (
-	"auth/internal/biz"
-	"auth/internal/conf"
-	"auth/internal/data"
-	"auth/internal/pkg/hash"
-	"auth/internal/pkg/paseto"
-	"auth/internal/server"
-	"auth/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/gusarow4321/TinyChat/auth/internal/biz"
+	"github.com/gusarow4321/TinyChat/auth/internal/conf"
+	"github.com/gusarow4321/TinyChat/auth/internal/data"
+	"github.com/gusarow4321/TinyChat/auth/internal/pkg/hash"
+	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
+	"github.com/gusarow4321/TinyChat/auth/internal/server"
+	"github.com/gusarow4321/TinyChat/auth/internal/service"
 )
 
 // wireApp init kratos application.

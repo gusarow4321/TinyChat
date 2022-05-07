@@ -1,15 +1,15 @@
 package biz
 
 import (
-	"auth/internal/pkg/hash"
-	"auth/internal/pkg/paseto"
 	"context"
 	"fmt"
+	"github.com/gusarow4321/TinyChat/auth/internal/pkg/hash"
+	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
 	"strconv"
 
-	v1 "auth/api/auth/v1"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
 )
 
 var (

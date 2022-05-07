@@ -3,8 +3,8 @@ package data
 import (
 	"context"
 
-	"auth/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/gusarow4321/TinyChat/auth/internal/biz"
 )
 
 type userRepo struct {

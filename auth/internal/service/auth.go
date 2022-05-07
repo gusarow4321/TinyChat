@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	v1 "auth/api/auth/v1"
-	"auth/internal/biz"
+	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
+	"github.com/gusarow4321/TinyChat/auth/internal/biz"
 )
 
 // AuthService is an auth service.

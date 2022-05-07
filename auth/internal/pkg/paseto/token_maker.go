@@ -1,8 +1,8 @@
 package paseto
 
 import (
-	"auth/internal/conf"
 	"encoding/hex"
+	"github.com/gusarow4321/TinyChat/auth/internal/conf"
 	"github.com/vk-rv/pvx"
 	"time"
 )
