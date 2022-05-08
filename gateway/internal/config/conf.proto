@@ -1,0 +1,17 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "auth/internal/conf;conf";
+
+message Bootstrap {
+  Rest rest = 1;
+  Auth auth = 2;
+}
+
+message Rest {
+  string addr = 1;
+}
+
+message Auth {
+  string addr = 1;
+}
