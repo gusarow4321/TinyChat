@@ -78,7 +78,7 @@ func (s *AuthService) Refresh(ctx context.Context, in *v1.RefreshTokenRequest) (
 
 // Identity implements auth.Identity.
 func (s *AuthService) Identity(ctx context.Context, in *v1.IdentityRequest) (*v1.IdentityReply, error) {
-	userId, err := s.uc.GetIdFromRefresh(ctx, in.AccessToken)
+	userId, err := s.uc.Identity(ctx, in.AccessToken)
 	if err != nil {
 		return nil, err
 	}

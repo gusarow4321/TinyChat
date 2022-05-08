@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/hash"
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"strconv"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
 )
 
 var (
-	ErrUserNotFound  = errors.NotFound(v1.ErrorReason_USER_NOT_FOUND.String(), "user not found")
-	ErrWrongPassword = errors.Unauthorized(v1.ErrorReason_WRONG_PASSWORD.String(), "wrong password")
-	ErrInvalidToken  = errors.BadRequest(v1.ErrorReason_INVALID_TOKEN.String(), "invalid token")
+	ErrUserNotFound  = status.Errorf(codes.NotFound, "reason: %v", v1.ErrorReason_USER_NOT_FOUND.String())
+	ErrWrongPassword = status.Errorf(codes.PermissionDenied, "reason: %v", v1.ErrorReason_WRONG_PASSWORD.String())
+	ErrInvalidToken  = status.Errorf(codes.Unauthenticated, "reason: %v", v1.ErrorReason_INVALID_TOKEN.String())
 )
 
 // User is a user model.
