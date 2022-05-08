@@ -1,7 +1,8 @@
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
-INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
-API_PROTO_FILES=$(shell find api -name *.proto)
+CONFIG_PROTO_FILES=$(shell find internal -name conf.proto)
+API_PROTO_FILES=$(shell find api -name auth.proto)
+ERRORS_PROTO_FILES=$(shell find api -name error_reason.proto)
 
 .PHONY: init
 # init env
@@ -18,7 +19,7 @@ config:
 	protoc --proto_path=./internal \
 	       --proto_path=./third_party \
  	       --go_out=paths=source_relative:./internal \
-	       $(INTERNAL_PROTO_FILES)
+	       $(CONFIG_PROTO_FILES)
 
 .PHONY: api
 # generate api proto
@@ -26,11 +27,20 @@ api:
 	protoc --proto_path=./api \
 	       --proto_path=./third_party \
 	       --go_out=paths=source_relative:./api \
-	       --go-errors_out=paths=source_relative:./api \
 	       --validate_out=paths=source_relative,lang=go:./api \
 	       --go-grpc_out=paths=source_relative:./api \
+	       --grpc-gateway_out=paths=source_relative:./api \
 	       --openapi_out==paths=source_relative:. \
 	       $(API_PROTO_FILES)
+
+.PHONY: errors
+# generate errors proto
+errors:
+	protoc --proto_path=./api \
+	       --proto_path=./third_party \
+	       --go_out=paths=source_relative:./api \
+	       --go-errors_out=paths=source_relative:./api \
+	       $(ERRORS_PROTO_FILES)
 
 .PHONY: build
 # build
@@ -48,6 +58,7 @@ generate:
 # generate all
 all:
 	make api;
+	make errors;
 	make config;
 	make generate;
 
