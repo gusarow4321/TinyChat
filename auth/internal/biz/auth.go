@@ -5,18 +5,10 @@ import (
 	"fmt"
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/hash"
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"strconv"
 
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
-)
-
-var (
-	ErrUserNotFound  = status.Errorf(codes.NotFound, "reason: %v", v1.ErrorReason_USER_NOT_FOUND.String())
-	ErrWrongPassword = status.Errorf(codes.PermissionDenied, "reason: %v", v1.ErrorReason_WRONG_PASSWORD.String())
-	ErrInvalidToken  = status.Errorf(codes.Unauthenticated, "reason: %v", v1.ErrorReason_INVALID_TOKEN.String())
 )
 
 // User is a user model.
@@ -54,12 +46,12 @@ func (uc *AuthUsecase) NewTokens(ctx context.Context, userId uint64) (*v1.Tokens
 
 	access, err := uc.tokenMaker.NewAccessToken(fmt.Sprintf("%v", userId))
 	if err != nil {
-		return nil, err
+		return nil, internalErr(err)
 	}
 
 	refresh, err := uc.tokenMaker.NewRefreshToken(fmt.Sprintf("%v", userId))
 	if err != nil {
-		return nil, err
+		return nil, internalErr(err)
 	}
 
 	return &v1.Tokens{
@@ -72,7 +64,11 @@ func (uc *AuthUsecase) NewTokens(ctx context.Context, userId uint64) (*v1.Tokens
 func (uc *AuthUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 	uc.log.WithContext(ctx).Infof("CreateUser: %v", u.Email)
 	u.Password = uc.hasher.Hash(u.Password)
-	return uc.repo.Save(ctx, u)
+	saved, err := uc.repo.Save(ctx, u)
+	if err != nil {
+		return nil, internalErr(err)
+	}
+	return saved, nil
 }
 
 // ComparePassword compare pass with the one saved in db
@@ -100,7 +96,11 @@ func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (ui
 
 	uc.log.WithContext(ctx).Infof("GetIdFromRefresh: " + idStr)
 
-	return strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		return 0, internalErr(err)
+	}
+	return id, nil
 }
 
 // Identity identifies user
@@ -112,5 +112,9 @@ func (uc *AuthUsecase) Identity(ctx context.Context, access string) (uint64, err
 
 	uc.log.WithContext(ctx).Infof("Identity: " + idStr)
 
-	return strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		return 0, internalErr(err)
+	}
+	return id, nil
 }
