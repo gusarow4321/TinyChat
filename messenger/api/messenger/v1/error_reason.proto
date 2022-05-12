@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package messenger.v1;
+
+option go_package = "messenger/api/messenger/v1;v1";
+option java_multiple_files = true;
+option java_package = "messenger.v1";
+
+enum ErrorReason {
+  CHAT_NOT_FOUND = 0;
+  USER_NOT_FOUND = 1;
+}
