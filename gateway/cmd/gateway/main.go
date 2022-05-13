@@ -6,9 +6,11 @@ import (
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
+	authv1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
 	conf "github.com/gusarow4321/TinyChat/gateway/internal/config"
 	"github.com/gusarow4321/TinyChat/gateway/internal/interceptors"
+	messengerv1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
+	"github.com/tmc/grpc-websocket-proxy/wsproxy"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
@@ -30,10 +32,17 @@ func register(ctx context.Context, authConn *grpc.ClientConn, conf *conf.Bootstr
 
 	authOpts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(authInt.Unary()), // TODO: not for auth
 	}
-	err := v1.RegisterAuthHandlerFromEndpoint(ctx, mux, conf.Auth.Addr, authOpts)
-	if err != nil {
+	if err := authv1.RegisterAuthHandlerFromEndpoint(ctx, mux, conf.Auth.Addr, authOpts); err != nil {
+		return nil, err
+	}
+
+	messengerOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(authInt.Unary()),
+		grpc.WithStreamInterceptor(authInt.Stream()),
+	}
+	if err := messengerv1.RegisterMessengerHandlerFromEndpoint(ctx, mux, conf.Messenger.Addr, messengerOpts); err != nil {
 		return nil, err
 	}
 
@@ -43,7 +52,7 @@ func register(ctx context.Context, authConn *grpc.ClientConn, conf *conf.Bootstr
 func main() {
 	flag.Parse()
 
-	// logger
+	// TODO: logger
 
 	// ctx
 	ctx := context.Background()
@@ -81,7 +90,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := http.ListenAndServe(bc.Rest.Addr, mux); err != nil {
+	if err := http.ListenAndServe(bc.Rest.Addr, wsproxy.WebsocketProxy(mux)); err != nil {
 		panic(err)
 	}
 }

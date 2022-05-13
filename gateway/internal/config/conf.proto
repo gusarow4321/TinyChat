@@ -6,6 +6,7 @@ option go_package = "auth/internal/conf;conf";
 message Bootstrap {
   Rest rest = 1;
   Auth auth = 2;
+  Messenger messenger = 3;
 }
 
 message Rest {
@@ -13,5 +14,9 @@ message Rest {
 }
 
 message Auth {
+  string addr = 1;
+}
+
+message Messenger {
   string addr = 1;
 }

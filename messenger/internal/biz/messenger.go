@@ -78,34 +78,37 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 		return internalErr(err)
 	}
 
+	t := time.NewTicker(uc.updDuration)
+
 	for {
-		select {
-		case <-conn.Context().Done():
-			return internalErr(conn.Context().Err())
-		case <-time.After(uc.updDuration):
-			msgs, err := uc.repo.ListMessagesFrom(conn.Context(), subReq.ChatId, lastMsg, uc.limit)
-			if err != nil {
-				return internalErr(err)
-			}
-
-			lastMsg = msgs[len(msgs)-1].ID
-
-			chatInfo, err = uc.repo.FindChatByID(conn.Context(), subReq.ChatId)
-			if err != nil {
-				return internalErr(err)
-			}
-
-			err = conn.Send(&v1.SubscribeReply{
-				Messages: msgModelsToReply(msgs),
-				Info: &v1.SubscribeReply_ChatInfo{
-					Count:   chatInfo.Count,
-					Members: userModelsToReply(chatInfo.Members),
-				},
-			})
-			if err != nil {
-				return internalErr(err)
-			}
+		msgs, err := uc.repo.ListMessagesFrom(conn.Context(), subReq.ChatId, lastMsg, uc.limit)
+		if err != nil {
+			return internalErr(err)
 		}
+
+		if len(msgs) == 0 {
+			<-t.C
+			continue
+		}
+		lastMsg = msgs[len(msgs)-1].ID
+
+		chatInfo, err = uc.repo.FindChatByID(conn.Context(), subReq.ChatId)
+		if err != nil {
+			return internalErr(err)
+		}
+
+		err = conn.Send(&v1.SubscribeReply{
+			Messages: msgModelsToReply(msgs),
+			Info: &v1.SubscribeReply_ChatInfo{
+				Count:   chatInfo.Count,
+				Members: userModelsToReply(chatInfo.Members),
+			},
+		})
+		if err != nil {
+			return internalErr(err)
+		}
+
+		<-t.C
 	}
 }
 
