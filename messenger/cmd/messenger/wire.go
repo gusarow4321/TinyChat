@@ -12,11 +12,19 @@ import (
 	"github.com/gusarow4321/TinyChat/messenger/internal/biz"
 	"github.com/gusarow4321/TinyChat/messenger/internal/conf"
 	"github.com/gusarow4321/TinyChat/messenger/internal/data"
+	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/observer"
 	"github.com/gusarow4321/TinyChat/messenger/internal/server"
 	"github.com/gusarow4321/TinyChat/messenger/internal/service"
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, *conf.Chat, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+func wireApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
+	panic(wire.Build(
+		server.ProviderSet,
+		data.ProviderSet,
+		biz.ProviderSet,
+		service.ProviderSet,
+		observer.ProviderSet,
+		newApp),
+	)
 }

@@ -50,7 +50,7 @@ func (c *messengerClient) Subscribe(ctx context.Context, in *SubscribeRequest, o
 }
 
 type Messenger_SubscribeClient interface {
-	Recv() (*SubscribeReply, error)
+	Recv() (*NewMessage, error)
 	grpc.ClientStream
 }
 
@@ -58,8 +58,8 @@ type messengerSubscribeClient struct {
 	grpc.ClientStream
 }
 
-func (x *messengerSubscribeClient) Recv() (*SubscribeReply, error) {
-	m := new(SubscribeReply)
+func (x *messengerSubscribeClient) Recv() (*NewMessage, error) {
+	m := new(NewMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func _Messenger_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) err
 }
 
 type Messenger_SubscribeServer interface {
-	Send(*SubscribeReply) error
+	Send(*NewMessage) error
 	grpc.ServerStream
 }
 
@@ -124,7 +124,7 @@ type messengerSubscribeServer struct {
 	grpc.ServerStream
 }
 
-func (x *messengerSubscribeServer) Send(m *SubscribeReply) error {
+func (x *messengerSubscribeServer) Send(m *NewMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 

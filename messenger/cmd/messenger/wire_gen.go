@@ -12,6 +12,7 @@ import (
 	"github.com/gusarow4321/TinyChat/messenger/internal/biz"
 	"github.com/gusarow4321/TinyChat/messenger/internal/conf"
 	"github.com/gusarow4321/TinyChat/messenger/internal/data"
+	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/observer"
 	"github.com/gusarow4321/TinyChat/messenger/internal/server"
 	"github.com/gusarow4321/TinyChat/messenger/internal/service"
 )
@@ -19,13 +20,14 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, chat *conf.Chat, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	messengerRepo := data.NewMessengerRepo(dataData, logger)
-	messengerUsecase := biz.NewMessengerUsecase(messengerRepo, logger, chat)
+	chatsObserver := observer.NewObserver()
+	messengerUsecase := biz.NewMessengerUsecase(messengerRepo, logger, chatsObserver)
 	messengerService := service.NewMessengerService(messengerUsecase)
 	grpcServer := server.NewGRPCServer(confServer, messengerService, logger)
 	app := newApp(logger, grpcServer)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	v1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
 	"github.com/gusarow4321/TinyChat/messenger/internal/biz"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // MessengerService is a messenger service.
@@ -26,18 +27,23 @@ func (s *MessengerService) Subscribe(req *v1.SubscribeRequest, conn v1.Messenger
 
 // Send implements messenger.Send.
 func (s *MessengerService) Send(ctx context.Context, in *v1.SendRequest) (*v1.NewMessage, error) {
-	msg, err := s.uc.Send(ctx, in.ChatId, in.UserId, in.Text)
+	ts := timestamppb.Now()
+
+	msg, user, err := s.uc.Send(ctx, in.ChatId, in.UserId, in.Text, ts.AsTime())
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: kafka
+
 	return &v1.NewMessage{
 		Id: msg.ID,
-		User: &v1.User{
-			Id:    msg.UserID,
-			Name:  msg.Name,
-			Color: fmt.Sprintf("%x", msg.Color),
+		User: &v1.NewMessage_User{
+			Id:    user.ID,
+			Name:  user.Name,
+			Color: fmt.Sprintf("%x", user.Color),
 		},
-		Text: msg.Text,
+		Text:      msg.Text,
+		Timestamp: ts,
 	}, err
 }

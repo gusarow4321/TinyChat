@@ -4,13 +4,14 @@ package api.messenger.v1;
 
 import "google/api/annotations.proto";
 import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "messenger/api/messenger/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.messenger.v1";
 
 service Messenger {
-	rpc Subscribe (SubscribeRequest) returns (stream SubscribeReply) {
+	rpc Subscribe (SubscribeRequest) returns (stream NewMessage) {
 		option (google.api.http) = {
 			get: "/messenger/subscribe"
 		};
@@ -29,30 +30,20 @@ message SubscribeRequest {
 	uint64 user_id = 2;
 }
 
-message SubscribeReply {
-	repeated NewMessage messages = 1;
-
-	message ChatInfo {
-		uint64 count = 1;
-		repeated User members = 2;
-	}
-	ChatInfo info = 2;
-}
-
 message SendRequest {
 	uint64 chat_id = 1;
 	uint64 user_id = 2;
 	string text = 3 [(validate.rules).string = {min_len: 1, max_len: 400}];
 }
 
-message User {
-	uint64 id = 1;
-	string name = 2;
-	string color = 3;
-}
-
 message NewMessage {
 	uint64 id = 1;
+	message User {
+		uint64 id = 1;
+		string name = 2;
+		string color = 3;
+	}
 	User user = 2;
 	string text = 3;
+	google.protobuf.Timestamp timestamp = 4;
 }

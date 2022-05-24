@@ -7,7 +7,6 @@ import "google/protobuf/duration.proto";
 
 message Bootstrap {
   Server server = 1;
-  Chat chat = 2;
   Data data = 3;
 }
 
@@ -33,9 +32,4 @@ message Data { // TODO
   }
   Database database = 1;
   Redis redis = 2;
-}
-
-message Chat {
-  int32 limit = 1;
-  google.protobuf.Duration duration = 2;
 }
