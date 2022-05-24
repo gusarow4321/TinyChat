@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/kafka"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"
@@ -29,14 +30,14 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, k *kafka.ConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(gs),
+		kratos.Server(gs, k),
 	)
 }
 
@@ -67,7 +68,7 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Kafka, logger)
 	if err != nil {
 		panic(err)
 	}
