@@ -28,12 +28,7 @@ service Auth {
 			body: "*"
 		};
 	};
-	rpc Identity (IdentityRequest) returns (IdentityReply){
-		option (google.api.http) = {
-			post: "/auth/identity"
-			body: "*"
-		};
-	};
+	rpc Identity (IdentityRequest) returns (IdentityReply){};
 }
 
 message Tokens {

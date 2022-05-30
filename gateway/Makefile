@@ -16,3 +16,10 @@ config:
 	protoc --proto_path=./internal \
  	       --go_out=paths=source_relative:./internal \
 	       $(CONFIG_PROTO_FILES)
+
+.PHONY: generate
+# generate
+generate:
+	go mod tidy
+	go get -d github.com/google/wire/cmd/wire@latest
+	go generate ./...

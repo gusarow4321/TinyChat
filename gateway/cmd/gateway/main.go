@@ -1,63 +1,74 @@
 package main
 
 import (
-	"context"
+	"contrib.go.opencensus.io/exporter/jaeger"
 	"flag"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	authv1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
 	conf "github.com/gusarow4321/TinyChat/gateway/internal/config"
-	"github.com/gusarow4321/TinyChat/gateway/internal/interceptors"
-	messengerv1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
-	"github.com/tmc/grpc-websocket-proxy/wsproxy"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/trace"
 	"net/http"
+	"os"
 )
 
 var (
+	// Name is the name of the compiled software.
+	Name string = "Gateway"
+	// Version is the version of the compiled software.
+	Version string
 	// flagconf is the config flag.
 	flagconf string
+
+	id, _ = os.Hostname()
 )
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-// create mux & register all grpc handlers
-func register(ctx context.Context, authConn *grpc.ClientConn, conf *conf.Bootstrap) (*runtime.ServeMux, error) {
-	mux := runtime.NewServeMux()
-	authInt := interceptors.NewAuthInterceptor(authConn)
-
-	authOpts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-	if err := authv1.RegisterAuthHandlerFromEndpoint(ctx, mux, conf.Auth.Addr, authOpts); err != nil {
-		return nil, err
+func newTracing(conf *conf.Tracing, mux *runtime.ServeMux, logger log.Logger) (*ochttp.Handler, func(), error) {
+	exp, err := jaeger.NewExporter(jaeger.Options{
+		CollectorEndpoint: conf.Addr,
+		Process:           jaeger.Process{ServiceName: Name},
+	})
+	if err != nil {
+		return nil, nil, err
 	}
 
-	messengerOpts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(authInt.Unary()),
-		grpc.WithStreamInterceptor(authInt.Stream()),
-	}
-	if err := messengerv1.RegisterMessengerHandlerFromEndpoint(ctx, mux, conf.Messenger.Addr, messengerOpts); err != nil {
-		return nil, err
+	trace.RegisterExporter(exp)
+	// In production can be set to a trace.ProbabilitySampler.
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+
+	cleanup := func() {
+		log.NewHelper(logger).Info("flushing jaeger exporter")
+		exp.Flush()
 	}
 
-	return mux, nil
+	return &ochttp.Handler{
+		Handler: mux,
+	}, cleanup, nil
+}
+
+func newGatewayServer(conf *conf.Rest, oc *ochttp.Handler) *http.Server {
+	return &http.Server{
+		Addr:    conf.Addr,
+		Handler: oc,
+	}
 }
 
 func main() {
 	flag.Parse()
 
-	// TODO: logger
-
-	// ctx
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	logger := log.With(log.NewStdLogger(os.Stdout),
+		"ts", log.DefaultTimestamp,
+		"caller", log.DefaultCaller,
+		"service.id", id,
+		"service.name", Name,
+		"service.version", Version,
+	)
 
 	// config
 	c := config.New(
@@ -76,21 +87,13 @@ func main() {
 		panic(err)
 	}
 
-	// auth client connection
-	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(bc.Auth.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	app, cleanup, err := wireApp(bc.Rest, bc.Auth, bc.Messenger, bc.Tracing, logger)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
+	defer cleanup()
 
-	// Register gRPC server endpoints
-	mux, err := register(ctx, conn, &bc)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := http.ListenAndServe(bc.Rest.Addr, wsproxy.WebsocketProxy(mux)); err != nil {
+	if err := app.ListenAndServe(); err != nil {
 		panic(err)
 	}
 }

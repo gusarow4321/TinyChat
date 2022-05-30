@@ -7,6 +7,7 @@ message Bootstrap {
   Rest rest = 1;
   Auth auth = 2;
   Messenger messenger = 3;
+  Tracing tracing = 4;
 }
 
 message Rest {
@@ -18,5 +19,9 @@ message Auth {
 }
 
 message Messenger {
+  string addr = 1;
+}
+
+message Tracing {
   string addr = 1;
 }
