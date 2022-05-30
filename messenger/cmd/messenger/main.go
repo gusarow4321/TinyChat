@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/kafka"
 	"go.opentelemetry.io/otel"
@@ -10,6 +11,7 @@ import (
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"os"
+	"time"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
@@ -47,21 +49,32 @@ func newApp(logger log.Logger, gs *grpc.Server, k *kafka.ConsumerServer) *kratos
 	)
 }
 
-func setTracerProvider(url string) error {
+func setTracerProvider(url string) (func(log.Logger), error) {
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	tp := tracesdk.NewTracerProvider(
 		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(1.0))),
 		tracesdk.WithBatcher(exp),
 		tracesdk.WithResource(resource.NewSchemaless(
 			semconv.ServiceNameKey.String(Name),
-			attribute.String("env", "dev"),
+			attribute.String("host", id),
+			attribute.String("version", Version),
 		)),
 	)
 	otel.SetTracerProvider(tp)
-	return nil
+
+	cleanup := func(logger log.Logger) {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := exp.Shutdown(ctx); err != nil {
+			log.NewHelper(logger).WithContext(ctx).Errorf("Error while shutdown jaeger: %v", err)
+		}
+		cancel()
+	}
+
+	return cleanup, nil
 }
 
 func main() {
@@ -91,9 +104,11 @@ func main() {
 		panic(err)
 	}
 
-	if err := setTracerProvider(bc.Tracing.Url); err != nil {
+	exporterCleanup, err := setTracerProvider(bc.Tracing.Url)
+	if err != nil {
 		panic(err)
 	}
+	defer exporterCleanup(logger)
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Kafka, logger)
 	if err != nil {
