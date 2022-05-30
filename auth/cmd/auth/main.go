@@ -2,6 +2,12 @@ package main
 
 import (
 	"flag"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"os"
 
 	"github.com/go-kratos/kratos/v2"
@@ -16,7 +22,7 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string
+	Name string = "Auth"
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
@@ -38,6 +44,23 @@ func newApp(logger log.Logger, gs *grpc.Server) *kratos.App {
 		kratos.Logger(logger),
 		kratos.Server(gs),
 	)
+}
+
+func setTracerProvider(url string) error {
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	if err != nil {
+		return err
+	}
+	tp := tracesdk.NewTracerProvider(
+		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(1.0))),
+		tracesdk.WithBatcher(exp),
+		tracesdk.WithResource(resource.NewSchemaless(
+			semconv.ServiceNameKey.String(Name),
+			attribute.String("env", "dev"),
+		)),
+	)
+	otel.SetTracerProvider(tp)
+	return nil
 }
 
 func main() {
@@ -64,6 +87,10 @@ func main() {
 
 	var bc conf.Bootstrap
 	if err := c.Scan(&bc); err != nil {
+		panic(err)
+	}
+
+	if err := setTracerProvider(bc.Tracing.Url); err != nil {
 		panic(err)
 	}
 

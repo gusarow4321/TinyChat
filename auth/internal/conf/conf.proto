@@ -10,6 +10,7 @@ message Bootstrap {
   Data data = 2;
   Hasher hasher = 3;
   TokenMaker token_maker = 4;
+  Tracing tracing = 5;
 }
 
 message Server {
@@ -50,4 +51,8 @@ message TokenMaker {
   string assert = 3;
   google.protobuf.Duration access_ttl = 4;
   google.protobuf.Duration refresh_ttl = 5;
+}
+
+message Tracing {
+  string url = 1;
 }

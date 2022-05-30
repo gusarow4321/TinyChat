@@ -68,6 +68,8 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 	uc.observer.Register(subReq.ChatId, subReq.UserId, channel)
 	defer uc.observer.Deregister(subReq.ChatId, subReq.UserId)
 
+	uc.log.WithContext(conn.Context()).Infof("Connected to chat. UserID: %v, ChatID: %v", subReq.UserId, subReq.ChatId)
+
 	for {
 		select {
 		case <-conn.Context().Done():
@@ -93,6 +95,8 @@ func (uc *MessengerUsecase) Send(ctx context.Context, chatId, userId uint64, tex
 	if err != nil {
 		return nil, nil, ErrChatNotFound
 	}
+
+	uc.log.WithContext(ctx).Infof("Message send. UserID: %v, ChatID: %v", userId, chatId)
 
 	msg, err := uc.repo.SaveMessage(ctx, &ChatMessage{
 		ChatID:    chatId,

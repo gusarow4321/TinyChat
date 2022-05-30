@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   Data data = 2;
   Kafka kafka = 3;
+  Tracing tracing = 4;
 }
 
 message Server {
@@ -39,4 +40,8 @@ message Kafka {
   string addr = 1;
   string topic = 2;
   string group_id = 3;
+}
+
+message Tracing {
+  string url = 1;
 }
