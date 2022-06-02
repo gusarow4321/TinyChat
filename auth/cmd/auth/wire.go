@@ -16,10 +16,11 @@ import (
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
 	"github.com/gusarow4321/TinyChat/auth/internal/server"
 	"github.com/gusarow4321/TinyChat/auth/internal/service"
+	"github.com/gusarow4321/TinyChat/pkg/metrics"
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, *conf.Hasher, *conf.TokenMaker, log.Logger) (*kratos.App, func(), error) {
+func wireApp(*conf.Server, *conf.Data, *conf.Hasher, *conf.TokenMaker, *metrics.Vecs, log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		server.ProviderSet,
 		data.ProviderSet,

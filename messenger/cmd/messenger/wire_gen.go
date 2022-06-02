@@ -16,12 +16,13 @@ import (
 	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/observer"
 	"github.com/gusarow4321/TinyChat/messenger/internal/server"
 	"github.com/gusarow4321/TinyChat/messenger/internal/service"
+	"github.com/gusarow4321/TinyChat/pkg/metrics"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, confKafka *conf.Kafka, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, confKafka *conf.Kafka, vecs *metrics.Vecs, logger log.Logger) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
@@ -31,9 +32,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, confKafka *conf.Kafka
 	messengerUsecase := biz.NewMessengerUsecase(messengerRepo, logger, chatsObserver)
 	producer, cleanup2 := kafka.NewProducer(confKafka, logger)
 	messengerService := service.NewMessengerService(messengerUsecase, producer)
-	grpcServer := server.NewGRPCServer(confServer, messengerService, logger)
+	grpcServer := server.NewGRPCServer(confServer, messengerService, vecs, logger)
+	httpServer := server.NewHTTPServer(confServer)
 	consumerServer := kafka.NewConsumerServer(confKafka, chatsObserver, logger)
-	app := newApp(logger, grpcServer, consumerServer)
+	app := newApp(logger, grpcServer, httpServer, consumerServer)
 	return app, func() {
 		cleanup2()
 		cleanup()

@@ -1,25 +1,19 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/kafka"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/sdk/resource"
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
-	"os"
-	"time"
-
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/gusarow4321/TinyChat/messenger/internal/conf"
+	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/kafka"
+	"github.com/gusarow4321/TinyChat/pkg/metrics"
+	pkgtracing "github.com/gusarow4321/TinyChat/pkg/tracing"
+	"os"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -38,43 +32,15 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, k *kafka.ConsumerServer) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server, k *kafka.ConsumerServer) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(gs, k),
+		kratos.Server(gs, hs, k),
 	)
-}
-
-func setTracerProvider(url string) (func(log.Logger), error) {
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
-	if err != nil {
-		return nil, err
-	}
-
-	tp := tracesdk.NewTracerProvider(
-		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(1.0))),
-		tracesdk.WithBatcher(exp),
-		tracesdk.WithResource(resource.NewSchemaless(
-			semconv.ServiceNameKey.String(Name),
-			attribute.String("host", id),
-			attribute.String("version", Version),
-		)),
-	)
-	otel.SetTracerProvider(tp)
-
-	cleanup := func(logger log.Logger) {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		if err := exp.Shutdown(ctx); err != nil {
-			log.NewHelper(logger).WithContext(ctx).Errorf("Error while shutdown jaeger: %v", err)
-		}
-		cancel()
-	}
-
-	return cleanup, nil
 }
 
 func main() {
@@ -104,13 +70,15 @@ func main() {
 		panic(err)
 	}
 
-	exporterCleanup, err := setTracerProvider(bc.Tracing.Url)
+	exporterCleanup, err := pkgtracing.SetTracerProvider(bc.Tracing.Url, Name, id, Version)
 	if err != nil {
 		panic(err)
 	}
 	defer exporterCleanup(logger)
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Kafka, logger)
+	metricVecs := metrics.RegisterMetrics(Name)
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Kafka, metricVecs, logger)
 	if err != nil {
 		panic(err)
 	}

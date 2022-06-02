@@ -1,9 +1,11 @@
 package server
 
 import (
+	prom "github.com/go-kratos/kratos/contrib/metrics/prometheus/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/metrics"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
@@ -11,10 +13,11 @@ import (
 	v1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
 	"github.com/gusarow4321/TinyChat/messenger/internal/conf"
 	"github.com/gusarow4321/TinyChat/messenger/internal/service"
+	pkgmetrics "github.com/gusarow4321/TinyChat/pkg/metrics"
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, messenger *service.MessengerService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, messenger *service.MessengerService, vecs *pkgmetrics.Vecs, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			middleware.Chain(
@@ -22,6 +25,10 @@ func NewGRPCServer(c *conf.Server, messenger *service.MessengerService, logger l
 				validate.Validator(),
 				tracing.Server(),
 				logging.Server(logger),
+				metrics.Server(
+					metrics.WithSeconds(prom.NewHistogram(vecs.Seconds)),
+					metrics.WithRequests(prom.NewCounter(vecs.Requests)),
+				),
 			),
 		),
 	}

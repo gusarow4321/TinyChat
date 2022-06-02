@@ -16,12 +16,13 @@ import (
 	"github.com/gusarow4321/TinyChat/auth/internal/pkg/paseto"
 	"github.com/gusarow4321/TinyChat/auth/internal/server"
 	"github.com/gusarow4321/TinyChat/auth/internal/service"
+	"github.com/gusarow4321/TinyChat/pkg/metrics"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, hasher *conf.Hasher, tokenMaker *conf.TokenMaker, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, hasher *conf.Hasher, tokenMaker *conf.TokenMaker, vecs *metrics.Vecs, logger log.Logger) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
@@ -35,8 +36,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, hasher *conf.Hasher, 
 	}
 	authUsecase := biz.NewAuthUsecase(userRepo, logger, passwordHasher, pasetoTokenMaker)
 	authService := service.NewGreeterService(authUsecase)
-	grpcServer := server.NewGRPCServer(confServer, authService, logger)
-	app := newApp(logger, grpcServer)
+	grpcServer := server.NewGRPCServer(confServer, authService, vecs, logger)
+	httpServer := server.NewHTTPServer(confServer)
+	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
 	}, nil

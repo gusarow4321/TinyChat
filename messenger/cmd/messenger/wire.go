@@ -16,10 +16,11 @@ import (
 	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/observer"
 	"github.com/gusarow4321/TinyChat/messenger/internal/server"
 	"github.com/gusarow4321/TinyChat/messenger/internal/service"
+	"github.com/gusarow4321/TinyChat/pkg/metrics"
 )
 
 // wireApp init kratos application.
-func wireApp(*conf.Server, *conf.Data, *conf.Kafka, log.Logger) (*kratos.App, func(), error) {
+func wireApp(*conf.Server, *conf.Data, *conf.Kafka, *metrics.Vecs, log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		server.ProviderSet,
 		data.ProviderSet,
