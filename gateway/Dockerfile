@@ -19,4 +19,4 @@ WORKDIR /app
 
 VOLUME /data/conf
 
-CMD ["./messenger", "-conf", "/data/conf/messenger.yaml"]
+CMD ["./gateway", "-conf", "/data/conf/gateway.yaml"]

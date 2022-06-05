@@ -1,4 +1,5 @@
 GOPATH:=$(shell go env GOPATH)
+VERSION=$(shell git describe --tags --always)
 CONFIG_PROTO_FILES=$(shell find internal -name conf.proto)
 
 .PHONY: init
@@ -23,3 +24,8 @@ generate:
 	go mod tidy
 	go get -d github.com/google/wire/cmd/wire@latest
 	go generate ./...
+
+.PHONY: build
+# build
+build:
+	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...

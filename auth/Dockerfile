@@ -17,7 +17,6 @@ COPY --from=builder /src/bin /app
 
 WORKDIR /app
 
-EXPOSE 9000
 VOLUME /data/conf
 
-CMD ["./server", "-conf", "/data/conf"]
+CMD ["./auth", "-conf", "/data/conf/auth.yaml"]

@@ -23,5 +23,5 @@ message Messenger {
 }
 
 message Tracing {
-  string addr = 1;
+  string url = 1;
 }

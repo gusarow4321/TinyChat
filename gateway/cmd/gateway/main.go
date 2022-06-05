@@ -31,7 +31,7 @@ func init() {
 
 func newTracing(conf *conf.Tracing, mux *runtime.ServeMux, logger log.Logger) (*ochttp.Handler, func(), error) {
 	exp, err := jaeger.NewExporter(jaeger.Options{
-		CollectorEndpoint: conf.Addr,
+		CollectorEndpoint: conf.Url,
 		Process:           jaeger.Process{ServiceName: Name},
 	})
 	if err != nil {
