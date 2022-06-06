@@ -13,7 +13,7 @@ import (
 
 // User is a user model.
 type User struct {
-	ID       uint64
+	ID       int64
 	Name     string
 	Email    string
 	Password string
@@ -22,7 +22,6 @@ type User struct {
 // UserRepo is a Greater repo.
 type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
-	FindByID(context.Context, uint64) (*User, error)
 	FindByEmail(context.Context, string) (*User, error)
 }
 
@@ -41,7 +40,7 @@ func NewAuthUsecase(repo UserRepo, logger log.Logger, hasher hash.PasswordHasher
 }
 
 // NewTokens generate new access & refresh paseto tokens
-func (uc *AuthUsecase) NewTokens(ctx context.Context, userId uint64) (*v1.Tokens, error) {
+func (uc *AuthUsecase) NewTokens(ctx context.Context, userId int64) (*v1.Tokens, error) {
 	uc.log.WithContext(ctx).Infof("NewTokens: %v", userId)
 
 	access, err := uc.tokenMaker.NewAccessToken(fmt.Sprintf("%v", userId))
@@ -88,7 +87,7 @@ func (uc *AuthUsecase) ComparePassword(ctx context.Context, email, pass string) 
 }
 
 // GetIdFromRefresh parse refresh token & return user id
-func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (uint64, error) {
+func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (int64, error) {
 	idStr, err := uc.tokenMaker.ParseRefreshToken(refresh)
 	if err != nil {
 		return 0, ErrInvalidToken
@@ -96,7 +95,7 @@ func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (ui
 
 	uc.log.WithContext(ctx).Infof("GetIdFromRefresh: " + idStr)
 
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		return 0, internalErr(err)
 	}
@@ -104,7 +103,7 @@ func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (ui
 }
 
 // Identity identifies user
-func (uc *AuthUsecase) Identity(ctx context.Context, access string) (uint64, error) {
+func (uc *AuthUsecase) Identity(ctx context.Context, access string) (int64, error) {
 	idStr, err := uc.tokenMaker.ParseAccessToken(access)
 	if err != nil {
 		return 0, ErrInvalidToken
@@ -112,7 +111,7 @@ func (uc *AuthUsecase) Identity(ctx context.Context, access string) (uint64, err
 
 	uc.log.WithContext(ctx).Infof("Identity: " + idStr)
 
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		return 0, internalErr(err)
 	}

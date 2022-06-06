@@ -10,30 +10,30 @@ import (
 
 // User is a user model.
 type User struct {
-	ID    uint64
+	ID    int64
 	Name  string
-	Color uint32 // hex color, max: 16777215
+	Color int32 // hex color, max: 16777215
 }
 
 // Chat model
 type Chat struct {
-	ID      uint64
-	OwnerID uint64
+	ID      int64
+	OwnerID int64
 }
 
 // ChatMessage is a chat message model
 type ChatMessage struct {
-	ID        uint64
-	ChatID    uint64
-	UserID    uint64
+	ID        int64
+	ChatID    int64
+	UserID    int64
 	Text      string
 	Timestamp time.Time
 }
 
 // MessengerRepo is a Messenger repo.
 type MessengerRepo interface {
-	FindChatByID(context.Context, uint64) (*Chat, error)
-	FindUserByID(context.Context, uint64) (*User, error)
+	FindChatByID(context.Context, int64) (*Chat, error)
+	FindUserByID(context.Context, int64) (*User, error)
 	SaveMessage(context.Context, *ChatMessage) (*ChatMessage, error)
 }
 
@@ -85,7 +85,7 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 	}
 }
 
-func (uc *MessengerUsecase) Send(ctx context.Context, chatId, userId uint64, text string, ts time.Time) (*ChatMessage, *User, error) {
+func (uc *MessengerUsecase) Send(ctx context.Context, chatId, userId int64, text string, ts time.Time) (*ChatMessage, *User, error) {
 	user, err := uc.repo.FindUserByID(ctx, userId)
 	if err != nil {
 		return nil, nil, ErrUserNotFound

@@ -11,9 +11,9 @@ import (
 var ProviderSet = wire.NewSet(NewProducer, NewConsumerServer)
 
 type kafkaNewMsg struct {
-	ID        uint64
-	ChatID    uint64
-	UserID    uint64
+	ID        int64
+	ChatID    int64
+	UserID    int64
 	Name      string
 	Color     string
 	Text      string

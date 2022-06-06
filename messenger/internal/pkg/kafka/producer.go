@@ -29,7 +29,7 @@ func NewProducer(conf *conf.Kafka, logger log.Logger) (*Producer, func()) {
 	return &Producer{w: w}, cleanup
 }
 
-func (p *Producer) Write(ctx context.Context, chatId uint64, msg *v1.NewMessage) error {
+func (p *Producer) Write(ctx context.Context, chatId int64, msg *v1.NewMessage) error {
 	v, err := kafka.Marshal(kafkaNewMsg{
 		ID:        msg.Id,
 		ChatID:    chatId,

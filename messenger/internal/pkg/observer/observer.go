@@ -10,40 +10,40 @@ import (
 var ProviderSet = wire.NewSet(NewObserver)
 
 type ChatsObserver interface {
-	Register(uint64, uint64, chan *v1.NewMessage)
-	Deregister(uint64, uint64)
-	Publish(uint64, *v1.NewMessage)
+	Register(int64, int64, chan *v1.NewMessage)
+	Deregister(int64, int64)
+	Publish(int64, *v1.NewMessage)
 }
 
 type chat struct {
-	channels map[uint64]chan *v1.NewMessage
+	channels map[int64]chan *v1.NewMessage
 }
 
 type Observer struct {
 	sync.Mutex
-	chats map[uint64]*chat
+	chats map[int64]*chat
 }
 
 func NewObserver() ChatsObserver {
 	return &Observer{
-		chats: make(map[uint64]*chat),
+		chats: make(map[int64]*chat),
 	}
 }
 
-func (o *Observer) Register(chatId, userId uint64, channel chan *v1.NewMessage) {
+func (o *Observer) Register(chatId, userId int64, channel chan *v1.NewMessage) {
 	o.Lock()
 	defer o.Unlock()
 
 	c, ok := o.chats[chatId]
 	if !ok {
-		c = &chat{make(map[uint64]chan *v1.NewMessage)}
+		c = &chat{make(map[int64]chan *v1.NewMessage)}
 		o.chats[chatId] = c
 	}
 
 	c.channels[userId] = channel
 }
 
-func (o *Observer) Deregister(chatId, userId uint64) {
+func (o *Observer) Deregister(chatId, userId int64) {
 	o.Lock()
 	defer o.Unlock()
 
@@ -59,7 +59,7 @@ func (o *Observer) Deregister(chatId, userId uint64) {
 	}
 }
 
-func (o *Observer) Publish(chatId uint64, msg *v1.NewMessage) {
+func (o *Observer) Publish(chatId int64, msg *v1.NewMessage) {
 	o.Lock()
 	defer o.Unlock()
 
