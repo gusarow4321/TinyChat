@@ -58,7 +58,6 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
-		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString},
 	}
@@ -71,6 +70,7 @@ var (
 	// UserMetadataColumns holds the columns for the "user_metadata" table.
 	UserMetadataColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "color", Type: field.TypeInt32},
 		{Name: "user_id", Type: field.TypeInt64, Unique: true},
 	}
@@ -82,7 +82,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_metadata_users_metadata",
-				Columns:    []*schema.Column{UserMetadataColumns[2]},
+				Columns:    []*schema.Column{UserMetadataColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

@@ -18,6 +18,8 @@ type UserMetadata struct {
 	ID int64 `json:"id,omitempty"`
 	// UserID holds the value of the "userID" field.
 	UserID int64 `json:"userID,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
 	// Color holds the value of the "color" field.
 	Color int32 `json:"color,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -55,6 +57,8 @@ func (*UserMetadata) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case usermetadata.FieldID, usermetadata.FieldUserID, usermetadata.FieldColor:
 			values[i] = new(sql.NullInt64)
+		case usermetadata.FieldName:
+			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type UserMetadata", columns[i])
 		}
@@ -81,6 +85,12 @@ func (um *UserMetadata) assignValues(columns []string, values []interface{}) err
 				return fmt.Errorf("unexpected type %T for field userID", values[i])
 			} else if value.Valid {
 				um.UserID = value.Int64
+			}
+		case usermetadata.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				um.Name = value.String
 			}
 		case usermetadata.FieldColor:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -123,6 +133,8 @@ func (um *UserMetadata) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", um.ID))
 	builder.WriteString(", userID=")
 	builder.WriteString(fmt.Sprintf("%v", um.UserID))
+	builder.WriteString(", name=")
+	builder.WriteString(um.Name)
 	builder.WriteString(", color=")
 	builder.WriteString(fmt.Sprintf("%v", um.Color))
 	builder.WriteByte(')')

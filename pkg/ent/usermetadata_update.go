@@ -34,6 +34,12 @@ func (umu *UserMetadataUpdate) SetUserID(i int64) *UserMetadataUpdate {
 	return umu
 }
 
+// SetName sets the "name" field.
+func (umu *UserMetadataUpdate) SetName(s string) *UserMetadataUpdate {
+	umu.mutation.SetName(s)
+	return umu
+}
+
 // SetColor sets the "color" field.
 func (umu *UserMetadataUpdate) SetColor(i int32) *UserMetadataUpdate {
 	umu.mutation.ResetColor()
@@ -149,6 +155,13 @@ func (umu *UserMetadataUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := umu.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usermetadata.FieldName,
+		})
+	}
 	if value, ok := umu.mutation.Color(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt32,
@@ -220,6 +233,12 @@ type UserMetadataUpdateOne struct {
 // SetUserID sets the "userID" field.
 func (umuo *UserMetadataUpdateOne) SetUserID(i int64) *UserMetadataUpdateOne {
 	umuo.mutation.SetUserID(i)
+	return umuo
+}
+
+// SetName sets the "name" field.
+func (umuo *UserMetadataUpdateOne) SetName(s string) *UserMetadataUpdateOne {
+	umuo.mutation.SetName(s)
 	return umuo
 }
 
@@ -361,6 +380,13 @@ func (umuo *UserMetadataUpdateOne) sqlSave(ctx context.Context) (_node *UserMeta
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := umuo.mutation.Name(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usermetadata.FieldName,
+		})
 	}
 	if value, ok := umuo.mutation.Color(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{

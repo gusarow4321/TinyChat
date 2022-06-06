@@ -1079,7 +1079,6 @@ type UserMutation struct {
 	op              Op
 	typ             string
 	id              *int64
-	name            *string
 	email           *string
 	password        *string
 	clearedFields   map[string]struct{}
@@ -1197,42 +1196,6 @@ func (m *UserMutation) IDs(ctx context.Context) ([]int64, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetName sets the "name" field.
-func (m *UserMutation) SetName(s string) {
-	m.name = &s
-}
-
-// Name returns the value of the "name" field in the mutation.
-func (m *UserMutation) Name() (r string, exists bool) {
-	v := m.name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldName returns the old "name" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldName: %w", err)
-	}
-	return oldValue.Name, nil
-}
-
-// ResetName resets all changes to the "name" field.
-func (m *UserMutation) ResetName() {
-	m.name = nil
 }
 
 // SetEmail sets the "email" field.
@@ -1458,10 +1421,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 3)
-	if m.name != nil {
-		fields = append(fields, user.FieldName)
-	}
+	fields := make([]string, 0, 2)
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -1476,8 +1436,6 @@ func (m *UserMutation) Fields() []string {
 // schema.
 func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case user.FieldName:
-		return m.Name()
 	case user.FieldEmail:
 		return m.Email()
 	case user.FieldPassword:
@@ -1491,8 +1449,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case user.FieldName:
-		return m.OldName(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
 	case user.FieldPassword:
@@ -1506,13 +1462,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case user.FieldName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetName(v)
-		return nil
 	case user.FieldEmail:
 		v, ok := value.(string)
 		if !ok {
@@ -1576,9 +1525,6 @@ func (m *UserMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
 	switch name {
-	case user.FieldName:
-		m.ResetName()
-		return nil
 	case user.FieldEmail:
 		m.ResetEmail()
 		return nil
@@ -1715,6 +1661,7 @@ type UserMetadataMutation struct {
 	op            Op
 	typ           string
 	id            *int64
+	name          *string
 	color         *int32
 	addcolor      *int32
 	clearedFields map[string]struct{}
@@ -1865,6 +1812,42 @@ func (m *UserMetadataMutation) ResetUserID() {
 	m.user = nil
 }
 
+// SetName sets the "name" field.
+func (m *UserMetadataMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *UserMetadataMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the UserMetadata entity.
+// If the UserMetadata object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMetadataMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *UserMetadataMutation) ResetName() {
+	m.name = nil
+}
+
 // SetColor sets the "color" field.
 func (m *UserMetadataMutation) SetColor(i int32) {
 	m.color = &i
@@ -1966,9 +1949,12 @@ func (m *UserMetadataMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMetadataMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.user != nil {
 		fields = append(fields, usermetadata.FieldUserID)
+	}
+	if m.name != nil {
+		fields = append(fields, usermetadata.FieldName)
 	}
 	if m.color != nil {
 		fields = append(fields, usermetadata.FieldColor)
@@ -1983,6 +1969,8 @@ func (m *UserMetadataMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case usermetadata.FieldUserID:
 		return m.UserID()
+	case usermetadata.FieldName:
+		return m.Name()
 	case usermetadata.FieldColor:
 		return m.Color()
 	}
@@ -1996,6 +1984,8 @@ func (m *UserMetadataMutation) OldField(ctx context.Context, name string) (ent.V
 	switch name {
 	case usermetadata.FieldUserID:
 		return m.OldUserID(ctx)
+	case usermetadata.FieldName:
+		return m.OldName(ctx)
 	case usermetadata.FieldColor:
 		return m.OldColor(ctx)
 	}
@@ -2013,6 +2003,13 @@ func (m *UserMetadataMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case usermetadata.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
 		return nil
 	case usermetadata.FieldColor:
 		v, ok := value.(int32)
@@ -2087,6 +2084,9 @@ func (m *UserMetadataMutation) ResetField(name string) error {
 	switch name {
 	case usermetadata.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case usermetadata.FieldName:
+		m.ResetName()
 		return nil
 	case usermetadata.FieldColor:
 		m.ResetColor()

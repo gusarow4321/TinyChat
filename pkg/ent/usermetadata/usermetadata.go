@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldUserID holds the string denoting the userid field in the database.
 	FieldUserID = "user_id"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
 	// FieldColor holds the string denoting the color field in the database.
 	FieldColor = "color"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -28,6 +30,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUserID,
+	FieldName,
 	FieldColor,
 }
 

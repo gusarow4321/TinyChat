@@ -16,6 +16,7 @@ func (UserMetadata) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id"),
 		field.Int64("userID"),
+		field.String("name").Unique(),
 		field.Int32("color"),
 	}
 }
