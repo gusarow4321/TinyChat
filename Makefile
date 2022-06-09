@@ -1,19 +1,29 @@
 VERSION=$(shell git describe --tags --always)
 DANGLING=$(shell docker images --filter "dangling=true" -q --no-trunc)
 
-authimg:
+auth-img:
 	docker image build --build-arg VERSION=$(VERSION) ./auth -t tiny-chat-auth:$(VERSION)
 
-gwimg:
+gw-img:
 	docker image build --build-arg VERSION=$(VERSION) ./gateway -t tiny-chat-gateway:$(VERSION)
 
-msgimg:
+msg-img:
 	docker image build --build-arg VERSION=$(VERSION) ./messenger -t tiny-chat-messenger:$(VERSION)
 
-allimgs:
-	make authimg
-	make gwimg
-	make msgimg
+all-imgs:
+	make auth-img
+	make gw-img
+	make msg-img
 
-rmdangling:
+rm-dangling:
 	docker rmi $(DANGLING)
+
+auth-test:
+	cd auth && go test -coverprofile=auth-coverage.txt -v ./internal/...
+
+messenger-test:
+	cd messenger && go test -coverprofile=messenger-coverage.txt -v ./internal/...
+
+test:
+	make auth-test
+	make messenger-test
