@@ -17,8 +17,8 @@ func TestSignUp(t *testing.T) {
 	ctx := context.Background()
 
 	mocked := new(mockedUserRepo)
-	mocked.On("Save", "new").Return("new", "new email", "pass", nil)
-	mocked.On("Save", "exists").Return("", "", "", errors.New("user already exist"))
+	mocked.On("Save", "new").Return(1, "new", "new email", "pass", nil)
+	mocked.On("Save", "exists").Return(0, "", "", "", errors.New("user already exist"))
 
 	client, cleanup, err := newAuthClient(ctx, mocked)
 	if err != nil {
@@ -59,9 +59,9 @@ func TestSignIn(t *testing.T) {
 	ctx := context.Background()
 
 	mocked := new(mockedUserRepo)
-	mocked.On("FindByEmail", "1").Return("1", "1", hash.NewPasswordHasher(bc.Hasher).Hash("pass"), nil)
-	mocked.On("FindByEmail", "2").Return("2", "2", "compare err", nil)
-	mocked.On("FindByEmail", "3").Return("", "", "", errors.New("not found"))
+	mocked.On("FindByEmail", "1").Return(1, "1", "1", hash.NewPasswordHasher(bc.Hasher).Hash("pass"), nil)
+	mocked.On("FindByEmail", "2").Return(2, "2", "2", "compare err", nil)
+	mocked.On("FindByEmail", "3").Return(0, "", "", "", errors.New("not found"))
 
 	client, cleanup, err := newAuthClient(ctx, mocked)
 	if err != nil {

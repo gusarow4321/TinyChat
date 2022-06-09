@@ -6,9 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/gusarow4321/TinyChat/auth/api/auth/v1"
-	"github.com/gusarow4321/TinyChat/auth/internal/biz"
 	"github.com/gusarow4321/TinyChat/auth/internal/conf"
-	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -24,28 +22,6 @@ var (
 
 	configPath = "../../configs/test.yaml"
 )
-
-type mockedUserRepo struct {
-	mock.Mock
-}
-
-func (m *mockedUserRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
-	args := m.Called(u.Name)
-	return &biz.User{
-		Name:     args.String(0),
-		Email:    args.String(1),
-		Password: args.String(2),
-	}, args.Error(3)
-}
-
-func (m *mockedUserRepo) FindByEmail(ctx context.Context, email string) (*biz.User, error) {
-	args := m.Called(email)
-	return &biz.User{
-		Name:     args.String(0),
-		Email:    args.String(1),
-		Password: args.String(2),
-	}, args.Error(3)
-}
 
 func init() {
 	logger = log.With(log.NewStdLogger(os.Stdout),
