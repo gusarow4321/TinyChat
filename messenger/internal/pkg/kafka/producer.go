@@ -9,11 +9,15 @@ import (
 	"strconv"
 )
 
+type MessagesProducer interface {
+	Write(context.Context, int64, *v1.NewMessage) error
+}
+
 type Producer struct {
 	w *kafka.Writer
 }
 
-func NewProducer(conf *conf.Kafka, logger log.Logger) (*Producer, func()) {
+func NewProducer(conf *conf.Kafka, logger log.Logger) (MessagesProducer, func()) {
 	w := &kafka.Writer{
 		Addr:     kafka.TCP(conf.Addr),
 		Topic:    conf.Topic,

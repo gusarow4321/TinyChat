@@ -14,11 +14,11 @@ type MessengerService struct {
 	v1.UnimplementedMessengerServer
 
 	uc *biz.MessengerUsecase
-	p  *kafka.Producer
+	p  kafka.MessagesProducer
 }
 
 // NewMessengerService new a messenger service.
-func NewMessengerService(uc *biz.MessengerUsecase, p *kafka.Producer) *MessengerService {
+func NewMessengerService(uc *biz.MessengerUsecase, p kafka.MessagesProducer) *MessengerService {
 	return &MessengerService{uc: uc, p: p}
 }
 
@@ -41,7 +41,7 @@ func (s *MessengerService) Send(ctx context.Context, in *v1.SendRequest) (*v1.Ne
 		User: &v1.NewMessage_User{
 			Id:    user.ID,
 			Name:  user.Name,
-			Color: fmt.Sprintf("%x", user.Color),
+			Color: fmt.Sprintf("#%x", user.Color),
 		},
 		Text:      msg.Text,
 		Timestamp: ts,
