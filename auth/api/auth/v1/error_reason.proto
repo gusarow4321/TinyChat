@@ -8,6 +8,7 @@ option java_package = "auth.v1";
 
 enum ErrorReason {
   USER_NOT_FOUND = 0;
-  WRONG_PASSWORD = 1;
-  INVALID_TOKEN  = 2;
+  USER_ALREADY_EXISTS = 1;
+  WRONG_PASSWORD = 2;
+  INVALID_TOKEN  = 3;
 }

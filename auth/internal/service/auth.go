@@ -14,8 +14,8 @@ type AuthService struct {
 	uc *biz.AuthUsecase
 }
 
-// NewGreeterService new an auth service.
-func NewGreeterService(uc *biz.AuthUsecase) *AuthService {
+// NewAuthService new an auth service.
+func NewAuthService(uc *biz.AuthUsecase) *AuthService {
 	return &AuthService{uc: uc}
 }
 
@@ -59,8 +59,8 @@ func (s *AuthService) SignIn(ctx context.Context, in *v1.SignInRequest) (*v1.Sig
 	}, nil
 }
 
-// Refresh implements auth.Refresh.
-func (s *AuthService) Refresh(ctx context.Context, in *v1.RefreshTokenRequest) (*v1.RefreshTokenReply, error) {
+// RefreshToken implements auth.RefreshToken.
+func (s *AuthService) RefreshToken(ctx context.Context, in *v1.RefreshTokenRequest) (*v1.RefreshTokenReply, error) {
 	userId, err := s.uc.GetIdFromRefresh(ctx, in.RefreshToken)
 	if err != nil {
 		return nil, err

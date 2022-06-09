@@ -12,8 +12,8 @@ type userRepo struct {
 	log  *log.Helper
 }
 
-// NewGreeterRepo .
-func NewGreeterRepo(data *Data, logger log.Logger) biz.UserRepo {
+// NewAuthRepo .
+func NewAuthRepo(data *Data, logger log.Logger) biz.UserRepo {
 	return &userRepo{
 		data: data,
 		log:  log.NewHelper(logger),

@@ -27,7 +27,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, hasher *conf.Hasher, 
 	if err != nil {
 		return nil, nil, err
 	}
-	userRepo := data.NewGreeterRepo(dataData, logger)
+	userRepo := data.NewAuthRepo(dataData, logger)
 	passwordHasher := hash.NewPasswordHasher(hasher)
 	pasetoTokenMaker, err := paseto.NewPasetoMaker(tokenMaker)
 	if err != nil {
@@ -35,7 +35,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, hasher *conf.Hasher, 
 		return nil, nil, err
 	}
 	authUsecase := biz.NewAuthUsecase(userRepo, logger, passwordHasher, pasetoTokenMaker)
-	authService := service.NewGreeterService(authUsecase)
+	authService := service.NewAuthService(authUsecase)
 	grpcServer := server.NewGRPCServer(confServer, authService, vecs, logger)
 	httpServer := server.NewHTTPServer(confServer)
 	app := newApp(logger, grpcServer, httpServer)

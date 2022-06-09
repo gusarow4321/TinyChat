@@ -25,7 +25,7 @@ type UserRepo interface {
 	FindByEmail(context.Context, string) (*User, error)
 }
 
-// AuthUsecase is a Greeter usecase.
+// AuthUsecase is a Auth usecase.
 type AuthUsecase struct {
 	repo UserRepo
 	log  *log.Helper
@@ -34,7 +34,7 @@ type AuthUsecase struct {
 	tokenMaker paseto.TokenMaker
 }
 
-// NewAuthUsecase new a Greeter usecase.
+// NewAuthUsecase new a Auth usecase.
 func NewAuthUsecase(repo UserRepo, logger log.Logger, hasher hash.PasswordHasher, tokenMaker paseto.TokenMaker) *AuthUsecase {
 	return &AuthUsecase{repo: repo, log: log.NewHelper(logger), hasher: hasher, tokenMaker: tokenMaker}
 }
@@ -65,7 +65,7 @@ func (uc *AuthUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 	u.Password = uc.hasher.Hash(u.Password)
 	saved, err := uc.repo.Save(ctx, u)
 	if err != nil {
-		return nil, internalErr(err)
+		return nil, ErrUserAlreadyExists
 	}
 	return saved, nil
 }

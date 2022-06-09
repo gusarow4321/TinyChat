@@ -1,0 +1,8 @@
+hasher:
+  salt: SNobRSPG5p4TZGMrDqDq
+tokenMaker:
+  accessKey: a754de40e78ae2ee86c1f06ab9fd458fba125b69460c2c782e9e88f8ead7ebf9
+  accessTtl: 900s # 15 min
+  refreshKey: 5f897c8f3bef28ed3db7b914992c7e47ea03293880525bf0882ef7783008b843
+  refreshTtl: 86400s # 24 h
+  assert: assert
