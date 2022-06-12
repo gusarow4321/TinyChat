@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
 )
 
 type Vecs struct {
@@ -29,7 +28,7 @@ func RegisterMetrics(namespace string) *Vecs {
 	prometheus.MustRegister(
 		metricSeconds,
 		metricRequests,
-		collectors.NewGoCollector(collectors.WithGoCollections(collectors.GoRuntimeMetricsCollection)),
+		// collectors.NewGoCollector(collectors.WithGoCollections(collectors.GoRuntimeMetricsCollection)),
 	)
 
 	return &Vecs{
