@@ -19,7 +19,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-kratos/kratos/contrib/metrics/prometheus/v2 v2.0.0-20220602163332-d1550b366be8
 	github.com/go-playground/assert/v2 v2.0.1
-	github.com/gusarow4321/TinyChat/pkg v0.0.0-20220606220815-b4df34ee276e
+	github.com/gusarow4321/TinyChat/pkg v0.0.0-20220612171233-55d09d4b20ba
 	github.com/lib/pq v1.10.4
 	github.com/prometheus/client_golang v1.12.2
 	github.com/stretchr/testify v1.7.2
@@ -42,6 +42,7 @@ require (
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/google/subcommands v1.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.10.0 // indirect
@@ -59,5 +60,7 @@ require (
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.9-0.20211216111533-8d383106f7e7 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

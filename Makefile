@@ -2,13 +2,13 @@ VERSION=$(shell git describe --tags --always)
 DANGLING=$(shell docker images --filter "dangling=true" -q --no-trunc)
 
 auth-img:
-	docker image build --build-arg VERSION=$(VERSION) ./auth -t tiny-chat-auth:$(VERSION)
+	docker image build --build-arg VERSION=$(VERSION) ./auth -t tiny-chat-auth:latest
 
 gw-img:
-	docker image build --build-arg VERSION=$(VERSION) ./gateway -t tiny-chat-gateway:$(VERSION)
+	docker image build --build-arg VERSION=$(VERSION) ./gateway -t tiny-chat-gateway:latest
 
 msg-img:
-	docker image build --build-arg VERSION=$(VERSION) ./messenger -t tiny-chat-messenger:$(VERSION)
+	docker image build --build-arg VERSION=$(VERSION) ./messenger -t tiny-chat-messenger:latest
 
 all-imgs:
 	make auth-img

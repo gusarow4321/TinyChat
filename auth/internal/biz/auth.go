@@ -19,13 +19,13 @@ type User struct {
 	Password string
 }
 
-// UserRepo is a Greater repo.
+// UserRepo is a User repo.
 type UserRepo interface {
 	Save(context.Context, *User) (*User, error)
 	FindByEmail(context.Context, string) (*User, error)
 }
 
-// AuthUsecase is a Auth usecase.
+// AuthUsecase is an Auth usecase.
 type AuthUsecase struct {
 	repo UserRepo
 	log  *log.Helper
@@ -34,7 +34,7 @@ type AuthUsecase struct {
 	tokenMaker paseto.TokenMaker
 }
 
-// NewAuthUsecase new a Auth usecase.
+// NewAuthUsecase new an Auth usecase.
 func NewAuthUsecase(repo UserRepo, logger log.Logger, hasher hash.PasswordHasher, tokenMaker paseto.TokenMaker) *AuthUsecase {
 	return &AuthUsecase{repo: repo, log: log.NewHelper(logger), hasher: hasher, tokenMaker: tokenMaker}
 }
@@ -65,6 +65,7 @@ func (uc *AuthUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 	u.Password = uc.hasher.Hash(u.Password)
 	saved, err := uc.repo.Save(ctx, u)
 	if err != nil {
+		uc.log.WithContext(ctx).Errorf("CreateUser error: %v", err)
 		return nil, ErrUserAlreadyExists
 	}
 	return saved, nil
@@ -76,10 +77,12 @@ func (uc *AuthUsecase) ComparePassword(ctx context.Context, email, pass string) 
 
 	model, err := uc.repo.FindByEmail(ctx, email)
 	if err != nil {
+		uc.log.WithContext(ctx).Errorf("ComparePassword error: %v", err)
 		return nil, ErrUserNotFound
 	}
 
 	if ok := uc.hasher.Compare(model.Password, pass); !ok {
+		uc.log.WithContext(ctx).Errorf("ComparePassword error: %v", err)
 		return nil, ErrWrongPassword
 	}
 
@@ -90,6 +93,7 @@ func (uc *AuthUsecase) ComparePassword(ctx context.Context, email, pass string) 
 func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (int64, error) {
 	idStr, err := uc.tokenMaker.ParseRefreshToken(refresh)
 	if err != nil {
+		uc.log.WithContext(ctx).Errorf("GetIdFromRefresh error: %v", err)
 		return 0, ErrInvalidToken
 	}
 
@@ -106,6 +110,7 @@ func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (in
 func (uc *AuthUsecase) Identity(ctx context.Context, access string) (int64, error) {
 	idStr, err := uc.tokenMaker.ParseAccessToken(access)
 	if err != nil {
+		uc.log.WithContext(ctx).Errorf("Identity error: %v", err)
 		return 0, ErrInvalidToken
 	}
 

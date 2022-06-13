@@ -7,9 +7,9 @@
 - [x] Api Gateway: [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
 - [x] OpenAPI descriptions with [protoc-gen-openapi](https://github.com/google/gnostic/tree/main/cmd/protoc-gen-openapi)
 - [x] PostgreSQL database
-- [x] Tests
-- [ ] Tracing: [Jaeger](https://www.jaegertracing.io/)
-- [ ] Metrics: [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) dashboards
+- [x] Unit tests with [testify](https://github.com/stretchr/testify)
+- [x] Tracing: [Jaeger](https://www.jaegertracing.io/)
+- [x] Metrics: [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) dashboards
 - [ ] Messages Broker: Kafka
 - [ ] File storage
 - [ ] Orchestration: [K8s](https://kubernetes.io/)

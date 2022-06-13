@@ -1,8 +1,0 @@
-rest:
-  addr: 0.0.0.0:8081
-auth:
-  addr: :9000
-messenger:
-  addr: :9000
-tracing:
-  url: 

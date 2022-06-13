@@ -1,0 +1,102 @@
+version: "3.9"
+
+services:
+  gateway:
+    container_name: gateway
+    image: tiny-chat-gateway:latest
+    volumes:
+      - ./gateway/configs:/data/conf
+    ports:
+      - "8081:8081"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.10
+
+  auth:
+    container_name: auth
+    image: tiny-chat-auth:latest
+    volumes:
+      - ./auth/configs:/data/conf
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.11
+
+  # messenger:
+  #   container_name: messenger
+  #   image: tiny-chat-messenger:latest
+  #   volumes:
+  #     - ./messenger/configs:/data/conf
+  #   ports:
+  #     - "8000:8000"
+  #     - "9000:9000"
+  #   networks:
+  #     tiny-chat-network:
+  #       ipv4_address: 172.21.0.12
+
+  postgres:
+    container_name: postgres
+    image: postgres:14-alpine
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+      - /var/run/postgresql:/var/run/postgresql
+    environment:
+      POSTGRES_DB: tiny_chat
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.32
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:1.35
+    ports:
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.20
+
+  prometheus:
+    image: prom/prometheus:v2.36.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.21
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.5.5
+    volumes:
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      tiny-chat-network:
+        ipv4_address: 172.21.0.22
+
+networks:
+  tiny-chat-network:
+    name: tiny-chat-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1

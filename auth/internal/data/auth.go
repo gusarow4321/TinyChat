@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gusarow4321/TinyChat/auth/internal/biz"
 	"github.com/gusarow4321/TinyChat/pkg/ent/user"
+	"math/rand"
 )
 
 type userRepo struct {
@@ -21,6 +22,8 @@ func NewAuthRepo(data *Data, logger log.Logger) biz.UserRepo {
 }
 
 func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
+	// TODO: tx
+
 	m, err := r.data.db.User.
 		Create().
 		SetEmail(u.Email).
@@ -30,11 +33,19 @@ func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
 		return nil, err
 	}
 
-	if _, err = r.data.db.UserMetadata.Create().SetName(u.Name).SetUser(m).Save(ctx); err != nil {
+	if _, err = r.data.db.UserMetadata.
+		Create().
+		SetName(u.Name).
+		SetUser(m).
+		SetColor(rand.Int31n(16777216)).
+		Save(ctx); err != nil {
 		return nil, err
 	}
 
-	if _, err = r.data.db.Chat.Create().SetOwner(m).Save(ctx); err != nil {
+	if _, err = r.data.db.Chat.
+		Create().
+		SetOwner(m).
+		Save(ctx); err != nil {
 		return nil, err
 	}
 

@@ -1,0 +1,8 @@
+rest:
+  addr: 0.0.0.0:8081
+auth:
+  addr: auth:9000
+messenger:
+  addr: messenger:9000
+tracing:
+  url: http://jaeger:14268/api/traces
