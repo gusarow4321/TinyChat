@@ -82,7 +82,6 @@ func (uc *AuthUsecase) ComparePassword(ctx context.Context, email, pass string) 
 	}
 
 	if ok := uc.hasher.Compare(model.Password, pass); !ok {
-		uc.log.WithContext(ctx).Errorf("ComparePassword error: %v", err)
 		return nil, ErrWrongPassword
 	}
 

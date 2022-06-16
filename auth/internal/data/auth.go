@@ -40,7 +40,7 @@ func (r *userRepo) WithTx(ctx context.Context, fn func(tx *ent.Tx) error) error 
 
 	if err = fn(tx); err != nil {
 		if rerr := tx.Rollback(); rerr != nil {
-			r.log.WithContext(ctx).Errorf("Rolling back transaction error: %w", rerr)
+			r.log.WithContext(ctx).Errorf("Rolling back transaction error: %v", rerr)
 		}
 		return err
 	}
