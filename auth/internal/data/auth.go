@@ -4,8 +4,10 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gusarow4321/TinyChat/auth/internal/biz"
+	"github.com/gusarow4321/TinyChat/pkg/ent"
 	"github.com/gusarow4321/TinyChat/pkg/ent/user"
 	"math/rand"
+	"time"
 )
 
 type userRepo struct {
@@ -15,45 +17,80 @@ type userRepo struct {
 
 // NewAuthRepo .
 func NewAuthRepo(data *Data, logger log.Logger) biz.UserRepo {
+	rand.Seed(time.Now().UnixNano())
+
 	return &userRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
-	// TODO: tx
-
-	m, err := r.data.db.User.
-		Create().
-		SetEmail(u.Email).
-		SetPassword(u.Password).
-		Save(ctx)
+func (r *userRepo) WithTx(ctx context.Context, fn func(tx *ent.Tx) error) error {
+	tx, err := r.data.db.Tx(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if _, err = r.data.db.UserMetadata.
-		Create().
-		SetName(u.Name).
-		SetUser(m).
-		SetColor(rand.Int31n(16777216)).
-		Save(ctx); err != nil {
-		return nil, err
-	}
+	defer func() {
+		if v := recover(); v != nil {
+			_ = tx.Rollback()
+			panic(v)
+		}
+	}()
 
-	if _, err = r.data.db.Chat.
-		Create().
-		SetOwner(m).
-		Save(ctx); err != nil {
+	if err = fn(tx); err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			r.log.WithContext(ctx).Errorf("Rolling back transaction error: %w", rerr)
+		}
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userRepo) Save(ctx context.Context, u *biz.User) (*biz.User, error) {
+	var userModel *ent.User
+	var userMetadata *ent.UserMetadata
+
+	if err := r.WithTx(ctx, func(tx *ent.Tx) error {
+		var err error
+
+		if userModel, err = tx.User.
+			Create().
+			SetEmail(u.Email).
+			SetPassword(u.Password).
+			Save(ctx); err != nil {
+			return err
+		}
+
+		if userMetadata, err = tx.UserMetadata.
+			Create().
+			SetName(u.Name).
+			SetUser(userModel).
+			SetColor(rand.Int31n(16777216)).
+			Save(ctx); err != nil {
+			return err
+		}
+
+		if _, err = tx.Chat.
+			Create().
+			SetOwner(userModel).
+			Save(ctx); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
 	return &biz.User{
-		ID:       m.ID,
-		Name:     u.Name,
-		Email:    m.Email,
-		Password: m.Password,
+		ID:       userModel.ID,
+		Name:     userMetadata.Name,
+		Email:    userModel.Email,
+		Password: userModel.Password,
 	}, nil
 }
 
