@@ -32,7 +32,7 @@ func (r *messengerRepo) FindChatByID(ctx context.Context, chatId int64) (*biz.Ch
 func (r *messengerRepo) FindUserByID(ctx context.Context, userId int64) (*biz.User, error) {
 	m, err := r.data.db.UserMetadata.Query().Where(usermetadata.UserID(userId)).Only(ctx)
 	return &biz.User{
-		ID:    m.ID,
+		ID:    userId,
 		Name:  m.Name,
 		Color: m.Color,
 	}, err

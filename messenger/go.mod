@@ -9,7 +9,7 @@ require (
 	github.com/go-kratos/kratos/v2 v2.3.1
 	github.com/google/wire v0.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
-	github.com/gusarow4321/TinyChat/pkg v0.0.0-20220606220815-b4df34ee276e
+	github.com/gusarow4321/TinyChat/pkg v0.0.0-20220613101543-c89dd0c7db9d
 	github.com/lib/pq v1.10.4
 	github.com/prometheus/client_golang v1.12.2
 	github.com/segmentio/kafka-go v0.4.31

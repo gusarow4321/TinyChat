@@ -11,7 +11,7 @@ import (
 type ConsumerServer struct {
 	r        *kafka.Reader
 	observer observer.ChatsObserver
-	logger   log.Logger
+	log      *log.Helper
 }
 
 func NewConsumerServer(conf *conf.Kafka, obs observer.ChatsObserver, logger log.Logger) *ConsumerServer {
@@ -22,7 +22,7 @@ func NewConsumerServer(conf *conf.Kafka, obs observer.ChatsObserver, logger log.
 			Topic:   conf.Topic,
 		}),
 		observer: obs,
-		logger:   logger,
+		log:      log.NewHelper(logger),
 	}
 }
 
@@ -36,9 +36,12 @@ func (s *ConsumerServer) Start(ctx context.Context) error {
 			return err
 		}
 		var msg kafkaNewMsg
-		if err := kafka.Unmarshal(kafkaMsg.Value, msg); err != nil {
+		if err := kafka.Unmarshal(kafkaMsg.Value, &msg); err != nil {
 			return err
 		}
+
+		s.log.WithContext(ctx).Infof("Read kafka msg. ChatId: %v MsgText: %v", msg.ChatID, msg.Text)
+
 		s.observer.Publish(msg.ChatID, msg.toApiMsg())
 	}
 }
@@ -47,6 +50,6 @@ func (s *ConsumerServer) Stop(ctx context.Context) error {
 	if err := s.r.Close(); err != nil {
 		return err
 	}
-	log.NewHelper(s.logger).Info("KafkaConsumer server stopping")
+	s.log.WithContext(ctx).Info("KafkaConsumer server stopping")
 	return nil
 }

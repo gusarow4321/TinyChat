@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	conf "github.com/gusarow4321/TinyChat/gateway/internal/config"
+	"github.com/tmc/grpc-websocket-proxy/wsproxy"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/trace"
 	"net/http"
@@ -48,7 +49,7 @@ func newTracing(conf *conf.Tracing, mux *runtime.ServeMux, logger log.Logger) (*
 	}
 
 	return &ochttp.Handler{
-		Handler: mux,
+		Handler: wsproxy.WebsocketProxy(mux),
 	}, cleanup, nil
 }
 

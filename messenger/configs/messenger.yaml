@@ -10,8 +10,8 @@ data:
     driver: postgres
     source: "host=postgres user=user dbname=tiny_chat password=password sslmode=disable"
 kafka:
-  addr:
-  topic:
-  groupId:
+  addr: broker:29092
+  topic: messages
+  groupId: "${KAFKA_GROUP_ID:}"
 tracing:
   url: http://jaeger:14268/api/traces

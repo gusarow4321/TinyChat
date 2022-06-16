@@ -10,7 +10,7 @@
 - [x] Unit tests with [testify](https://github.com/stretchr/testify)
 - [x] Tracing: [Jaeger](https://www.jaegertracing.io/)
 - [x] Metrics: [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) dashboards
-- [ ] Messages Broker: Kafka
-- [ ] File storage
+- [x] Messages Broker: Kafka
 - [ ] Orchestration: [K8s](https://kubernetes.io/)
 - [x] CI/CD
+- [ ] File storage

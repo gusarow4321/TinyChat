@@ -261,8 +261,8 @@ github.com/grpc-ecosystem/grpc-gateway v1.16.0 h1:gmcG1KaJ57LophUzW0Hy8NmPhnMZb4
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0 h1:ESEyqQqXXFIcImj/BE8oKEX37Zsuceb2cZI+EL/zNCY=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0/go.mod h1:XnLCLFp3tjoZJszVKjfpyAK6J8sYIcQXWQxmqLWF21I=
-github.com/gusarow4321/TinyChat/pkg v0.0.0-20220606220815-b4df34ee276e h1:W5liXAO7WuNr2RBXuJGZ5abB+OSZYCfy7/b7yBtJ3k4=
-github.com/gusarow4321/TinyChat/pkg v0.0.0-20220606220815-b4df34ee276e/go.mod h1:6Mq0yFjIexwi3MsDJPx2nOSO/J9+vVBAEV0BHlcn4fM=
+github.com/gusarow4321/TinyChat/pkg v0.0.0-20220613101543-c89dd0c7db9d h1:AOueeAJcmmSzmvoZm92JMPCyqIBnG5PmDG7eBlgqFQc=
+github.com/gusarow4321/TinyChat/pkg v0.0.0-20220613101543-c89dd0c7db9d/go.mod h1:5d/qA9+f5au0tYVPTuF+b6442ZCk2PScuPUNp88fZkM=
 github.com/hashicorp/consul/api v1.11.0/go.mod h1:XjsvQN+RJGWI2TWy1/kqaE16HrR2J/FWgkYjdZQsX9M=
 github.com/hashicorp/consul/sdk v0.8.0/go.mod h1:GBvyrGALthsZObzUGsfgHZQDXjg4lOjagTIwIR1vPms=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=

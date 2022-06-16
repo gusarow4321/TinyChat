@@ -110,7 +110,7 @@ func (uc *AuthUsecase) GetIdFromRefresh(ctx context.Context, refresh string) (in
 func (uc *AuthUsecase) Identity(ctx context.Context, access string) (int64, error) {
 	idStr, err := uc.tokenMaker.ParseAccessToken(access)
 	if err != nil {
-		uc.log.WithContext(ctx).Errorf("Identity error: %v", err)
+		uc.log.WithContext(ctx).Errorf("Invalid token: %v", access)
 		return 0, ErrInvalidToken
 	}
 
