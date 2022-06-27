@@ -1,0 +1,27 @@
+dependencies:
+- name: auth-chart
+  repository: ""
+  version: 0.1.0
+- name: gateway-chart
+  repository: ""
+  version: 0.1.0
+- name: messenger-chart
+  repository: ""
+  version: 0.1.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 11.6.7
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.0.0
+- name: jaeger
+  repository: https://jaegertracing.github.io/helm-charts
+  version: 0.56.8
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 15.10.1
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.31.0
+digest: sha256:9b616c08965476258071c445ef5289001866cdc92a254ddd4698b4be7083ea8b
+generated: "2022-06-23T14:23:09.4918433+03:00"

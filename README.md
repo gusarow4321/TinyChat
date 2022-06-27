@@ -11,6 +11,42 @@
 - [x] Tracing: [Jaeger](https://www.jaegertracing.io/)
 - [x] Metrics: [Prometheus](https://prometheus.io/) & [Grafana](https://grafana.com/) dashboards
 - [x] Messages Broker: Kafka
-- [ ] Orchestration: [K8s](https://kubernetes.io/)
-- [x] CI/CD
+- [x] Orchestration: [K8s](https://kubernetes.io/)
 - [ ] File storage
+- [ ] Deploying to GKE
+- [ ] Integration tests
+
+## Build
+Build docker images of all services:
+```shell
+make all-imgs
+```
+
+## Docker
+Deploy services locally with docker:
+```shell
+docker compose up -d
+```
+
+## Kubernetes
+Deploy services on [minikube](https://minikube.sigs.k8s.io/docs/start/) using [helm](https://helm.sh/)
+```shell
+minikube start --feature-gates=GRPCContainerProbe=true
+
+kubectl create namespace tiny-chat
+kubectl config set-context --current --namespace=tiny-chat
+
+kubectl create secret generic grafana-auth \
+  --from-literal=admin-user=admin \
+  --from-literal=admin-password=admin
+
+make load-imgs
+
+helm dependency update
+helm install tiny-chat tiny-chat-chart
+```
+
+To forward pod's port to localhost:
+```shell
+kubectl port-forward POD_NAME LOCALHOST_PORT:POD_PORT
+```

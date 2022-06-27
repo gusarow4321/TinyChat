@@ -1,0 +1,94 @@
+# Default values for tiny-chat-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  postgresql:
+    auth:
+      username: user
+      password: password
+      database: tiny_chat
+
+auth-chart:
+  fullnameOverride: "auth"
+
+gateway-chart:
+  fullnameOverride: "gateway"
+
+messenger-chart:
+  fullnameOverride: "messenger"
+
+postgresql:
+  fullnameOverride: "postgres"
+
+kafka:
+  fullnameOverride: "kafka"
+
+jaeger:
+  fullnameOverride: "jaeger"
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+  storage:
+    type: none
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
+
+prometheus:
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+
+grafana:
+  fullnameOverride: "grafana"
+  persistence:
+    enabled: true
+
+  admin:
+    existingSecret: "grafana-auth"
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://tiny-chat-prometheus-server.tiny-chat.svc.cluster.local
+        access: proxy
+        orgId: 1
+        isDefault: true
+        basicAuth: false
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  dashboards:
+    default:
+      prometheus-overview:
+        gnetId: 3662
+        revision: 2
+        datasource: Prometheus
+      kubernetes-monitoring:
+        gnetId: 12740
+        revision: 1
+        datasource: Prometheus
+      node-exporter:
+        gnetId: 1860
+        revision: 27
+        datasource: Prometheus

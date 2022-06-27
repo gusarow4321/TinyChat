@@ -8,14 +8,14 @@ server:
 data:
   database:
     driver: postgres
-    source: "host=postgres user=user dbname=tiny_chat password=password sslmode=disable"
+    source: "host=postgres user=${DATA_USER:user} password=${DATA_PASSWORD:password} dbname=tiny_chat sslmode=disable"
 hasher:
-  salt: SNobRSPG5p4TZGMrDqDq
+  salt: "${HASHER_SALT:SNobRSPG5p4TZGMrDqDq}"
 tokenMaker:
-  accessKey: a754de40e78ae2ee86c1f06ab9fd458fba125b69460c2c782e9e88f8ead7ebf9
+  accessKey: "${TOKEN_MAKER_ACCESS:a754de40e78ae2ee86c1f06ab9fd458fba125b69460c2c782e9e88f8ead7ebf9}"
   accessTtl: 900s # 15 min
-  refreshKey: 5f897c8f3bef28ed3db7b914992c7e47ea03293880525bf0882ef7783008b843
+  refreshKey: "${TOKEN_MAKER_REFRESH:5f897c8f3bef28ed3db7b914992c7e47ea03293880525bf0882ef7783008b843}"
   refreshTtl: 86400s # 24 h
-  assert: assert
+  assert: "${TOKEN_MAKER_ASSERT:assert}"
 tracing:
   url: http://jaeger:14268/api/traces

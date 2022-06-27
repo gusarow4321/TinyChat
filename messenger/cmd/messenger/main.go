@@ -74,6 +74,10 @@ func main() {
 		panic(err)
 	}
 
+	bc.Kafka.GroupId += "-" + id
+
+	log.NewHelper(logger).Debugf("GroupID: %v", bc.Kafka.GroupId)
+
 	exporterCleanup, err := pkgtracing.SetTracerProvider(bc.Tracing.Url, Name, id, Version)
 	if err != nil {
 		panic(err)

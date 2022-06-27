@@ -26,13 +26,19 @@ func wireApp(rest *conf.Rest, auth *conf.Auth, messenger *conf.Messenger, tracin
 		cleanup()
 		return nil, nil, err
 	}
-	handler, cleanup3, err := newTracing(tracing, serveMux, logger)
+	handler, err := customHandler(serveMux, logger)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	server := newGatewayServer(rest, handler)
+	ochttpHandler, cleanup3, err := newTracing(tracing, handler, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	server := newGatewayServer(rest, ochttpHandler)
 	return server, func() {
 		cleanup3()
 		cleanup2()

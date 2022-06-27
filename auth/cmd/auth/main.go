@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
+	"github.com/go-kratos/kratos/v2/config/env"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
@@ -23,6 +24,8 @@ var (
 	Version string
 	// flagconf is the config flag.
 	flagconf string
+	// prefixs is the config environment variable prefix
+	prefixs = []string{"TINY_CHAT_AUTH_", "AUTH_"}
 
 	id, _ = os.Hostname()
 )
@@ -56,6 +59,7 @@ func main() {
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
+			env.NewSource(prefixs...),
 		),
 	)
 	defer c.Close()

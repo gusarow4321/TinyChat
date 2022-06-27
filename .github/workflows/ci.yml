@@ -24,19 +24,3 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./auth/auth-coverage.txt,./messenger/messenger-coverage.txt
-
-#  build:
-#    name: Build
-#    runs-on: ubuntu-latest
-#    needs: [ test ]
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v3
-#
-#      - name: Set up Go
-#        uses: actions/setup-go@v3
-#        with:
-#          go-version: 1.17
-#
-#      - name: Build
-#        run: make build

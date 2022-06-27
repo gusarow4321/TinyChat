@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "messenger-chart.fullname" . }}
+  labels:
+    {{- include "messenger-chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "messenger-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "messenger-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "messenger-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPorts.metrics }}
+              name: metrics
+              protocol: TCP
+            - containerPort: {{ .Values.containerPorts.grpc }}
+              name: grpc
+              protocol: TCP
+          env:
+            - name: MESSENGER_DATABASE_SOURCE
+              value: "host={{ .Values.databaseSource.host }}
+                      user={{ .Values.global.postgresql.auth.username }}
+                      password={{ .Values.global.postgresql.auth.password }}
+                      dbname={{ .Values.global.postgresql.auth.database }}
+                      sslmode={{ .Values.databaseSource.sslmode }}"
+            {{- if .Values.jaegerHost }}
+            - name: MESSENGER_JAEGER_HOST
+              value: {{ .Values.jaegerHost }}
+            {{- end }}
+            {{- if .Values.kafkaHost }}
+            - name: MESSENGER_KAFKA_HOST
+              value: {{ .Values.kafkaHost }}
+            {{- end }}
+          volumeMounts:
+            - name: config-vol
+              mountPath: /data/conf
+          readinessProbe:
+            initialDelaySeconds: 10
+            grpc:
+              port: {{ .Values.containerPorts.grpc }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config-vol
+          configMap:
+            name: {{ include "messenger-chart.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

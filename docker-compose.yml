@@ -35,8 +35,6 @@ services:
     restart: always
     volumes:
       - ./messenger/configs:/data/conf
-    environment:
-      MESSENGER_KAFKA_GROUP_ID: messenger1
     ports:
       - "8001:8000"
       - "9001:9000"
@@ -46,24 +44,6 @@ services:
     networks:
       tiny-chat-network:
         ipv4_address: 172.21.0.12
-
-  # messenger2:
-  #   container_name: messenger2
-  #   image: tiny-chat-messenger:latest
-  #   restart: always
-  #   volumes:
-  #     - ./messenger/configs:/data/conf
-  #   environment:
-  #     MESSENGER_KAFKA_GROUP_ID: messenger2
-  #   ports:
-  #     - "8002:8000"
-  #     - "9002:9000"
-  #   depends_on:
-  #     - postgres
-  #     - broker
-  #   networks:
-  #     tiny-chat-network:
-  #       ipv4_address: 172.21.0.13
 
   broker:
     image: confluentinc/cp-kafka:7.1.1
@@ -91,7 +71,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     volumes:
-      - ./update_run.sh:/tmp/update_run.sh
+      - ./kafka/update_run.sh:/tmp/update_run.sh
     command: "bash -c 'if [ ! -f /tmp/update_run.sh ]; then echo \"ERROR: Did you forget the update_run.sh file that came with this docker-compose.yml file?\" && exit 1 ; else /tmp/update_run.sh && /etc/confluent/docker/run ; fi'"
     networks:
       tiny-chat-network:

@@ -1,0 +1,82 @@
+# Default values for auth-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: tiny-chat-auth
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+containerPorts:
+  metrics: 8000
+  grpc: 9000
+
+databaseSource:
+  host: "postgres.tiny-chat.svc.cluster.local"
+  sslmode: disable
+
+secret:
+  salt: 2b0c3479bccdd2b398693a5258029ad3
+  access: d38f4eb75a138cca4ce84232fe2d3fbafc44c4866c2441c8e07469e46b5d7258
+  refresh: 14f0709ec091b26cff03ace8ae0a91d2b9254d1fbde2e6c98bc43a406517924a
+  assert: tressa
+
+jaegerHost: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: /metrics
+  prometheus.io/port: "8000"
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  metricsPort: 8000
+  grpcPort: 9000
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 90
+  targetMemoryUtilizationPercentage: 90
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

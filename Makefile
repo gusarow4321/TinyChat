@@ -15,6 +15,11 @@ all-imgs:
 	make gw-img
 	make msg-img
 
+load-imgs:
+	minikube image load tiny-chat-auth
+	minikube image load tiny-chat-gateway
+	minikube image load tiny-chat-messenger
+
 rm-dangling:
 	docker rmi $(DANGLING)
 

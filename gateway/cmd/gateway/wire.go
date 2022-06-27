@@ -16,6 +16,7 @@ func wireApp(*conf.Rest, *conf.Auth, *conf.Messenger, *conf.Tracing, log.Logger)
 	panic(wire.Build(
 		interceptors.ProviderSet,
 		registers.ProviderSet,
+		customHandler,
 		newTracing,
 		newGatewayServer),
 	)

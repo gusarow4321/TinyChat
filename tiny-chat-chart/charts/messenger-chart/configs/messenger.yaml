@@ -8,10 +8,10 @@ server:
 data:
   database:
     driver: postgres
-    source: "host=postgres user=${DATA_USER:user} password=${DATA_PASSWORD:password} dbname=tiny_chat sslmode=disable"
+    source: "${DATABASE_SOURCE:}"
 kafka:
-  addr: broker:29092
+  addr: "${KAFKA_HOST:kafka.tiny-chat.svc.cluster.local}:9092"
   topic: messages
   groupId: messenger
 tracing:
-  url: http://jaeger:14268/api/traces
+  url: "http://${JAEGER_HOST:jaeger-collector.tiny-chat.svc.cluster.local}:14268/api/traces"

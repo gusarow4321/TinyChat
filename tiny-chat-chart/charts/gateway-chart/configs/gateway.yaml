@@ -1,0 +1,8 @@
+rest:
+  addr: 0.0.0.0:8080
+auth:
+  addr: "${AUTH_HOST:auth.tiny-chat.svc.cluster.local}:9000"
+messenger:
+  addr: "${MESSENGER_HOST:messenger.tiny-chat.svc.cluster.local}:9000"
+tracing:
+  url: "http://${JAEGER_HOST:jaeger-collector.tiny-chat.svc.cluster.local}:14268/api/traces"
