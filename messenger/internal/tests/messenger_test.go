@@ -6,6 +6,7 @@ import (
 	v1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
@@ -33,31 +34,28 @@ func TestSend(t *testing.T) {
 		t.Errorf("New client error: %v", err)
 	}
 
-	_, err = client.Send(ctx, &v1.SendRequest{
+	_, err = client.Send(metadata.NewOutgoingContext(ctx, metadata.Pairs("user-id", "1")), &v1.SendRequest{
 		ChatId: 0,
-		UserId: 1,
 		Text:   "",
 	})
 	if s, ok := status.FromError(err); ok {
-		assert.Equal(t, s.Code(), codes.NotFound)
+		assert.Equal(t, codes.NotFound, s.Code())
 	} else {
 		t.Fatal("User not found failed")
 	}
 
-	_, err = client.Send(ctx, &v1.SendRequest{
+	_, err = client.Send(metadata.NewOutgoingContext(ctx, metadata.Pairs("user-id", "2")), &v1.SendRequest{
 		ChatId: 1,
-		UserId: 2,
 		Text:   "",
 	})
 	if s, ok := status.FromError(err); ok {
-		assert.Equal(t, s.Code(), codes.NotFound)
+		assert.Equal(t, codes.NotFound, s.Code())
 	} else {
 		t.Fatal("Chat not found failed")
 	}
 
-	resp, err := client.Send(ctx, &v1.SendRequest{
+	resp, err := client.Send(metadata.NewOutgoingContext(ctx, metadata.Pairs("user-id", "3")), &v1.SendRequest{
 		ChatId: 2,
-		UserId: 3,
 		Text:   "success msg",
 	})
 	if err != nil {
@@ -87,9 +85,8 @@ func TestChat(t *testing.T) {
 		t.Errorf("New client error: %v", err)
 	}
 
-	sub, err := client.Subscribe(ctx, &v1.SubscribeRequest{
+	sub, err := client.Subscribe(metadata.NewOutgoingContext(ctx, metadata.Pairs("user-id", "1")), &v1.SubscribeRequest{
 		ChatId: 1,
-		UserId: 1,
 	})
 	if err != nil {
 		t.Fatalf("Subscribe failed: %v", err)

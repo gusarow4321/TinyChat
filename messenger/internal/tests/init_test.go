@@ -47,7 +47,7 @@ func init() {
 
 	c.Close()
 
-	o = observer.NewObserver()
+	o = observer.NewObserver(logger)
 }
 
 func newMessengerClient(ctx context.Context, mockedProducer *mockedProducer, mockedRepo *mockedMessengerRepo) (v1.MessengerClient, func(), error) {

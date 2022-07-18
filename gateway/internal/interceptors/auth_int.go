@@ -9,11 +9,14 @@ import (
 	conf "github.com/gusarow4321/TinyChat/gateway/internal/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"strconv"
 	"strings"
 )
 
 const (
 	authorizationHeader = runtime.MetadataPrefix + "authorization"
+	userIDHeader        = "user-id"
 )
 
 type AuthInterceptor struct {
@@ -36,15 +39,15 @@ func NewAuthInterceptor(conf *conf.Auth, logger log.Logger) (*AuthInterceptor, f
 	return &AuthInterceptor{v1.NewAuthClient(conn)}, cleanup, nil
 }
 
-func (i *AuthInterceptor) identity(ctx context.Context) error {
+func (i *AuthInterceptor) identity(ctx context.Context) (context.Context, error) {
 	val := metautils.ExtractOutgoing(ctx).Get(authorizationHeader)
 
-	_, err := i.client.Identity(ctx, &v1.IdentityRequest{AccessToken: strings.TrimPrefix(val, "Bearer ")})
+	reply, err := i.client.Identity(ctx, &v1.IdentityRequest{AccessToken: strings.TrimPrefix(val, "Bearer ")})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return metadata.AppendToOutgoingContext(ctx, userIDHeader, strconv.FormatInt(reply.Id, 10)), nil
 }
 
 func (i *AuthInterceptor) Unary() grpc.UnaryClientInterceptor {
@@ -56,7 +59,8 @@ func (i *AuthInterceptor) Unary() grpc.UnaryClientInterceptor {
 		invoker grpc.UnaryInvoker,
 		opts ...grpc.CallOption,
 	) error {
-		if err := i.identity(ctx); err != nil {
+		ctx, err := i.identity(ctx)
+		if err != nil {
 			return err
 		}
 		return invoker(ctx, method, req, reply, cc, opts...)
@@ -72,7 +76,8 @@ func (i *AuthInterceptor) Stream() grpc.StreamClientInterceptor {
 		streamer grpc.Streamer,
 		opts ...grpc.CallOption,
 	) (grpc.ClientStream, error) {
-		if err := i.identity(ctx); err != nil {
+		ctx, err := i.identity(ctx)
+		if err != nil {
 			return nil, err
 		}
 		return streamer(ctx, desc, cc, method, opts...)

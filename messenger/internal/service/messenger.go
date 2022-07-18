@@ -31,7 +31,7 @@ func (s *MessengerService) Subscribe(req *v1.SubscribeRequest, conn v1.Messenger
 func (s *MessengerService) Send(ctx context.Context, in *v1.SendRequest) (*v1.NewMessage, error) {
 	ts := timestamppb.Now()
 
-	msg, user, err := s.uc.Send(ctx, in.ChatId, in.UserId, in.Text, ts.AsTime())
+	msg, user, err := s.uc.Send(ctx, in.ChatId, in.Text, ts.AsTime())
 	if err != nil {
 		return nil, err
 	}

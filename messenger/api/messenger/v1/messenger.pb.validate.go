@@ -59,8 +59,6 @@ func (m *SubscribeRequest) validate(all bool) error {
 
 	// no validation rules for ChatId
 
-	// no validation rules for UserId
-
 	if len(errors) > 0 {
 		return SubscribeRequestMultiError(errors)
 	}
@@ -162,8 +160,6 @@ func (m *SendRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for ChatId
-
-	// no validation rules for UserId
 
 	if l := utf8.RuneCountInString(m.GetText()); l < 1 || l > 400 {
 		err := SendRequestValidationError{

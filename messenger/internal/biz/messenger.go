@@ -2,9 +2,12 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "github.com/gusarow4321/TinyChat/messenger/api/messenger/v1"
 	"github.com/gusarow4321/TinyChat/messenger/internal/pkg/observer"
+	"google.golang.org/grpc/metadata"
+	"strconv"
 	"time"
 )
 
@@ -53,8 +56,29 @@ func NewMessengerUsecase(repo MessengerRepo, logger log.Logger, observer observe
 	}
 }
 
+func (uc *MessengerUsecase) extractUserID(ctx context.Context) (int64, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return 0, internalErr(errors.New("metadata not found"))
+	}
+	mdValue := md.Get("user-id")
+	if len(mdValue) == 0 {
+		return 0, internalErr(errors.New("empty metadata"))
+	}
+	userId, err := strconv.ParseInt(mdValue[0], 10, 64)
+	if err != nil {
+		return 0, internalErr(errors.New("invalid metadata"))
+	}
+	return userId, nil
+}
+
 func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_SubscribeServer) error {
-	_, err := uc.repo.FindUserByID(conn.Context(), subReq.UserId)
+	userId, err := uc.extractUserID(conn.Context())
+	if err != nil {
+		return err
+	}
+
+	_, err = uc.repo.FindUserByID(conn.Context(), userId)
 	if err != nil {
 		return ErrUserNotFound
 	}
@@ -65,15 +89,15 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 	}
 
 	channel := make(chan *v1.NewMessage, 5)
-	uc.observer.Register(subReq.ChatId, subReq.UserId, channel)
-	defer uc.observer.Deregister(subReq.ChatId, subReq.UserId)
+	uc.observer.Register(subReq.ChatId, userId, channel)
+	defer uc.observer.Deregister(subReq.ChatId, userId)
 
-	uc.log.WithContext(conn.Context()).Infof("Connected to chat. UserID: %v, ChatID: %v", subReq.UserId, subReq.ChatId)
+	uc.log.WithContext(conn.Context()).Infof("Connected to chat. UserID: %v, ChatID: %v", userId, subReq.ChatId)
 
 	for {
 		select {
 		case <-conn.Context().Done():
-			return conn.Context().Err()
+			return internalErr(conn.Context().Err())
 		case msg := <-channel:
 			err = conn.Send(msg)
 			if err != nil {
@@ -85,7 +109,12 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 	}
 }
 
-func (uc *MessengerUsecase) Send(ctx context.Context, chatId, userId int64, text string, ts time.Time) (*ChatMessage, *User, error) {
+func (uc *MessengerUsecase) Send(ctx context.Context, chatId int64, text string, ts time.Time) (*ChatMessage, *User, error) {
+	userId, err := uc.extractUserID(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	user, err := uc.repo.FindUserByID(ctx, userId)
 	if err != nil {
 		return nil, nil, ErrUserNotFound

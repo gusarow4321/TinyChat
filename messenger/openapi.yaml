@@ -41,11 +41,6 @@ paths:
                   schema:
                     type: integer
                     format: int64
-                - name: userId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
             responses:
                 "200":
                     description: OK
@@ -96,9 +91,6 @@ components:
             type: object
             properties:
                 chatId:
-                    type: integer
-                    format: int64
-                userId:
                     type: integer
                     format: int64
                 text:
