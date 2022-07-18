@@ -28,7 +28,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, confKafka *conf.Kafka
 		return nil, nil, err
 	}
 	messengerRepo := data.NewMessengerRepo(dataData, logger)
-	chatsObserver := observer.NewObserver()
+	chatsObserver := observer.NewObserver(logger)
 	messengerUsecase := biz.NewMessengerUsecase(messengerRepo, logger, chatsObserver)
 	messagesProducer, cleanup2 := kafka.NewProducer(confKafka, logger)
 	messengerService := service.NewMessengerService(messengerUsecase, messagesProducer)

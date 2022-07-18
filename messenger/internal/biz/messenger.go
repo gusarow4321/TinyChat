@@ -64,7 +64,7 @@ func (uc *MessengerUsecase) Chat(subReq *v1.SubscribeRequest, conn v1.Messenger_
 		return ErrChatNotFound
 	}
 
-	channel := make(chan *v1.NewMessage)
+	channel := make(chan *v1.NewMessage, 5)
 	uc.observer.Register(subReq.ChatId, subReq.UserId, channel)
 	defer uc.observer.Deregister(subReq.ChatId, subReq.UserId)
 
